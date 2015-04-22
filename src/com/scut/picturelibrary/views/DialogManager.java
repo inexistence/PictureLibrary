@@ -67,6 +67,10 @@ public class DialogManager {
 		time_textview.setText(time);
 		filesize_textview = (TextView) layout.findViewById(R.id.filesize);
 		filesize_textview.setText(filesize);
+		video_textview=(TextView) layout.findViewById(R.id.video);
+		video_name_textview=(TextView) layout.findViewById(R.id.video_name);
+		video_textview.setVisibility(View.GONE);
+		video_name_textview.setVisibility(View.GONE);
 		size_textview = (TextView) layout.findViewById(R.id.size);
 		size_textview.setText(size);
 		builder_Property.setTitle(title).setView(layout)

@@ -295,17 +295,18 @@ public class SearchImageActivity extends ActionBarActivity implements
 				Log.v("text", text);
 				if (text != null) {
 					query = text;
-					nAdapter.clear();
 					// 获取搜索内容
-					getSearchImage(query);
 					getSupportLoaderManager().restartLoader(LOAD_ID, null,
 							SearchImageActivity.this);
 				}
 				return false;
 			}
-
 			@Override
 			public boolean onQueryTextSubmit(String arg0) {
+				if(	mtabhost.getCurrentTabTag()=="tab2"){
+					nAdapter.clear();
+				getSearchImage(searchView.getQuery().toString());				
+				searchView.clearFocus();}
 				return false;
 			}
 		});
