@@ -20,40 +20,20 @@
             style="@style/ImageButtonStyle"
             android:layout_alignParentTop="true"
             android:src="@drawable/img_media_back" />
-
-        <ImageButton
-            android:id="@+id/ibtn_camera_well"
-            style="@style/ImageButtonStyle"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/img_camera_well" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#000000" >
-
-        <ImageButton
-            android:id="@+id/ibtn_camera_album"
-            style="@style/ImageButtonStyle"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/img_camera_album" />
+        android:background="#000000"
+        android:gravity="center"
+        android:orientation="horizontal" >
 
         <ImageButton
             android:id="@+id/ibtn_camera_take"
             style="@style/ImageButtonStyle"
             android:layout_centerInParent="true"
             android:src="@drawable/img_camera_take" />
-
-        <ImageButton
-            android:id="@+id/ibtn_camera_more"
-            style="@style/ImageButtonStyle"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/img_camera_more" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

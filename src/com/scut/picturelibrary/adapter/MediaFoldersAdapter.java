@@ -50,7 +50,7 @@ public class MediaFoldersAdapter extends CursorAdapter {
 		}
 		viewHolder.txtName.setText(cursor.getString(cursor
 				.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME)));
-		// TODO 设置文件夹内文件数量
+		// 设置文件夹内文件数量
 		viewHolder.txtNum.setText("("
 				+ cursor.getString(cursor.getColumnIndex("num")) + ")");
 	}
@@ -96,6 +96,13 @@ public class MediaFoldersAdapter extends CursorAdapter {
 		Cursor c = getCursor();
 		c.moveToPosition(index);
 		return c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_ID));
+	}
+
+	public String getBuckName(int index) {
+		Cursor c = getCursor();
+		c.moveToPosition(index);
+		return c.getString(c
+				.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
 	}
 
 	/**

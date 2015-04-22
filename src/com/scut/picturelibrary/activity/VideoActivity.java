@@ -105,6 +105,7 @@ public class VideoActivity extends Activity implements OnClickListener,
 		mediaPlayer = mSurfaceViewManager.getMyMediaPlayer();
 
 		mVideoView = (FrameLayout) findViewById(R.id.fl_vedio_view);
+
 		mVideoView.setOnTouchListener(this);
 		mVideoView.addView(mSurfaceViewManager);
 
@@ -144,26 +145,35 @@ public class VideoActivity extends Activity implements OnClickListener,
 		});
 	}
 
+	Runnable mUpdateSeeekBarHandler = new Runnable() {
+
+		@Override
+		public void run() {
+
+		}
+	};
+
 	// 更新seekbar和时间
 	private void updateSeekBarThread() {
-		new Thread() {
-
-			@Override
-			public void run() {
-				while (mediaPlayer.isPlaying()) {
-					try {
-						currentTime = mediaPlayer.getCurrentPosition();
-						Message msg = new Message();
-						msg.what = currentTime;
-						handler.sendMessage(msg);
-						sleep(1000);
-					} catch (Exception e) {
-
-					}
-				}
-			}
-
-		}.start();
+		handler.post(null);
+		// new Thread() {
+		//
+		// @Override
+		// public void run() {
+		// while (mediaPlayer != null && mediaPlayer.isPlaying()) {
+		// try {
+		// currentTime = mediaPlayer.getCurrentPosition();
+		// Message msg = new Message();
+		// msg.what = currentTime;
+		// handler.sendMessage(msg);
+		// sleep(1000);
+		// } catch (Exception e) {
+		//
+		// }
+		// }
+		// }
+		//
+		// }.start();
 	}
 
 	private static class MyHandler extends Handler {
@@ -175,20 +185,26 @@ public class VideoActivity extends Activity implements OnClickListener,
 
 		public void handleMessage(Message msg) {
 			VideoActivity act = wp.get();
-			if (act.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-				act.setOrientationVideoLayout(act.mediaPlayer); // 竖屏情况下的缩放
-			} else {
-				if (act.lpLandscape == null) {
-					act.lpLandscape = new LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.MATCH_PARENT);
+			if (act == null)
+				return;
+			if (act.mediaPlayer != null) {
+				if (act.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+					act.setOrientationVideoLayout(act.mediaPlayer); // 竖屏情况下的缩放
+				} else {
+					if (act.lpLandscape == null) {
+						act.lpLandscape = new LayoutParams(
+								LayoutParams.MATCH_PARENT,
+								LayoutParams.MATCH_PARENT);
+					}
+					// 横屏则不缩放
+					act.mSurfaceViewManager.setLayoutParams(act.lpLandscape);
 				}
-				// 横屏则不缩放
-				act.mSurfaceViewManager.setLayoutParams(act.lpLandscape);
+				int curTime = act.mediaPlayer.getCurrentPosition();
+				act.mVideoSeekBar.setProgress(curTime);
+				act.mVideoTime.setText(act.mSurfaceViewManager
+						.ShowTime(curTime));
+				act.handler.postDelayed(null, 1000);
 			}
-
-			act.mVideoSeekBar.setProgress(msg.what);
-			act.mVideoTime.setText(act.mSurfaceViewManager.ShowTime(msg.what));
 
 		}
 	}
@@ -251,7 +267,8 @@ public class VideoActivity extends Activity implements OnClickListener,
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
 			int progress = seekBar.getProgress();
-			mediaPlayer.seekTo(progress);
+			if (mediaPlayer != null)
+				mediaPlayer.seekTo(progress);
 		}
 
 		@Override
@@ -337,7 +354,7 @@ public class VideoActivity extends Activity implements OnClickListener,
 				break;
 			// 长时间失去了这个音频的焦点
 			case AudioManager.AUDIOFOCUS_LOSS:
-				if (mediaPlayer.isPlaying()) {
+				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 					mediaPlayer.stop();
 					mediaPlayer.release();
 					mediaPlayer = null;
@@ -346,13 +363,13 @@ public class VideoActivity extends Activity implements OnClickListener,
 				break;
 			// 暂时的失去了音频的焦点,但是应该要马上回到焦点上
 			case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-				if (mediaPlayer.isPlaying()) {
+				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 					mediaPlayer.pause();
 				}
 				break;
 			// 暂时的失去了音频的焦点,但是你允许继续用小音量播放音频
 			case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-				if (mediaPlayer.isPlaying()) {
+				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 					mediaPlayer.setVolume(0.1f, 0.1f);
 				}
 				break;

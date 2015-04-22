@@ -1,0 +1,69 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/img_filter_review"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:scaleType="centerInside" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2" >
+
+        <LinearLayout
+            android:id="@+id/hscrollview_filter_btns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btn_filter_originPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="原图" />
+
+            <Button
+                android:id="@+id/btn_filter_oldPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="旧照片" />
+
+            <Button
+                android:id="@+id/btn_filter_black_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="黑白" />
+
+            <Button
+                android:id="@+id/btn_filter_comic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="动漫" />
+
+            <Button
+                android:id="@+id/btn_filter_feather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="羽化" />
+
+            <Button
+                android:id="@+id/btn_filter_brightContrast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="高亮对比度" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <Button
+        android:id="@+id/btn_filter_save"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="保存" />
+
+</LinearLayout>

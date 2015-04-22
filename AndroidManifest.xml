@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="11"
         android:targetSdkVersion="20" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,6 +26,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
+        android:name="com.scut.picturelibrary.PicLibApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -86,6 +87,16 @@
             android:name="com.scut.picturelibrary.activity.ImageViewActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.scut.picturelibrary.activity.SimpleImageActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.scut.picturelibrary.activity.FilterActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
     </application>
 
 </manifest>

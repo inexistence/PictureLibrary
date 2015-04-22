@@ -27,7 +27,7 @@ import com.scut.picturelibrary.R;
  * @author 黄建斌
  * 
  */
-@SuppressLint("NewApi") public class MediaFilesAdapter extends CursorAdapter {
+public class MediaFilesAdapter extends CursorAdapter {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "MediaFilesAdapter";
@@ -139,7 +139,6 @@ import com.scut.picturelibrary.R;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 		}
@@ -154,12 +153,13 @@ import com.scut.picturelibrary.R;
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inJustDecodeBounds = true;
 		// 只获取图片尺寸不占用内存
-		Bitmap bitmap = BitmapFactory.decodeFile(path, opts);
+		BitmapFactory.decodeFile(path, opts);
 		int x = opts.outHeight;
 		int y = opts.outWidth;
-	     if(x>y)
-	    	  return x+"*"+y;
-	      else return y+"*"+x;
+		if (x > y)
+			return x + "*" + y;
+		else
+			return y + "*" + x;
 	}
 
 	public String getType(int index) {
@@ -209,19 +209,24 @@ import com.scut.picturelibrary.R;
 		return videotime;
 
 	}
-      @SuppressLint("NewApi") public String getVideoSize(int index)
-      {Cursor c=getCursor();
-      String path=c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
-      MediaMetadataRetriever retriever=new MediaMetadataRetriever();
-      retriever.setDataSource(path);
-      Bitmap bm=retriever.getFrameAtTime(1);
-      int x=bm.getWidth();
-      int y=bm.getHeight();
-      if(x>y)
-    	  return x+"*"+y;
-      else return y+"*"+x;
-    	  
-      }
+
+	@SuppressLint("NewApi")
+	public String getVideoSize(int index) {
+		Cursor c = getCursor();
+		String path = c
+				.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
+		MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+		retriever.setDataSource(path);
+		Bitmap bm = retriever.getFrameAtTime(1);
+		int x = bm.getWidth();
+		int y = bm.getHeight();
+		if (x > y)
+			return x + "*" + y;
+		else
+			return y + "*" + x;
+
+	}
+
 	/**
 	 * 静态类 防止内存泄漏
 	 * 
