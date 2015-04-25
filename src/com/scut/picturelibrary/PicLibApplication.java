@@ -31,6 +31,7 @@ public class PicLibApplication extends Application {
 				.cacheOnDisk(true)// 缓存在磁盘中
 				.displayer(new FadeInBitmapDisplayer(400))// 显示渐变动画
 				.bitmapConfig(Bitmap.Config.RGB_565) // 设置图片的解码类型
+				.considerExifParams(true)// 考虑旋转角
 				.build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(

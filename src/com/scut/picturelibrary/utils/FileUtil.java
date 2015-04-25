@@ -40,7 +40,7 @@ public class FileUtil {
 					+ "IMG_" + timeStamp + ".jpg");
 		} else if (type == MEDIA_TYPE_RECORDER) {
 			mediaFile = new File(mediaStorageDir.getPath() + File.separator
-					+ "VID_" + timeStamp + ".mp4");
+					+ "VID_" + timeStamp + ".3gp");
 		} else {
 
 			return null;

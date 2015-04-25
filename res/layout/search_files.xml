@@ -3,12 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.scut.picturelibrary.activity.MediaFoldersActivity" >
-<!--     <ImageView 
-        android:id="@+id/img"
-           android:layout_width="match_parent"
-    android:layout_height="match_parent"
-        /> -->
+    tools:context="com.scut.picturelibrary.activity.MediaFoldersActivity" >                   
 <TabHost 
     android:id="@+id/tabhost"
    android:layout_width="match_parent"
@@ -49,6 +44,19 @@
         android:paddingTop="16dp"
         android:verticalSpacing="10dp" />
      </FrameLayout>
+     
+     <LinearLayout 
+         android:id="@+id/net"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+  <TextView
+         android:id="@+id/tv1"
+         android:layout_width="match_parent"
+         android:text="   查找"
+         android:background="#D9D9D9"
+         android:textSize="20sp"
+         android:layout_height="wrap_content"/>
      <GridView
         android:id="@+id/grid_net_files"
         android:layout_width="match_parent"
@@ -59,6 +67,7 @@
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
         android:verticalSpacing="10dp" />
+     </LinearLayout>
     </FrameLayout>
     </LinearLayout>
 </TabHost>

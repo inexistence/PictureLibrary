@@ -32,7 +32,6 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 	private int second, minute;
 
 	private String time;
-
 	// 摄像预览
 	private FrameLayout mRecorderPreview;
 
@@ -71,6 +70,8 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 				isRecording = false;
 				Toast.makeText(MediaRecorderActivity.this, "录制完成",
 						Toast.LENGTH_SHORT).show();
+				//录像完毕后扫描文件
+				mSurfaceViewManager.scanFile();
 				minute = 0;
 				second = 0;
 				mRecorderRecord.setImageDrawable(getResources().getDrawable(
@@ -125,13 +126,6 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 			}
 
 		}.start();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mSurfaceViewManager.releaseMediaRecorder();
-		mSurfaceViewManager.releaseCamera();
 	}
 
 	@Override

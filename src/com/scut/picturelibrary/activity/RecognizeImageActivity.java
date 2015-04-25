@@ -40,7 +40,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import cn.bmob.v3.Bmob;
 import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.listener.UploadFileListener;
 
@@ -97,9 +96,7 @@ public class RecognizeImageActivity extends ActionBarActivity {
 		mFileName = intent.getStringExtra("filename");
 
 		setTitle(mFileName);
-
-		Bmob.initialize(getApplicationContext(),
-				"ee96600c38da5fe2c41328c00b90e2a1");
+		
 		taskCollection = new HashSet<GetWorkerTask>();
 		mUploadedTable = new UploadedFileTableUtil(this);
 

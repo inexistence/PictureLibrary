@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
@@ -22,14 +23,14 @@ public class CameraActivity extends Activity implements OnClickListener {
 
 	public final static int MEDIA_TYPE_CAMERA = 1;
 
-	// 拍照界面的按钮，返回、分割线、相册、拍照、更多
+	// 返回
 	private ImageButton mCameraBack;
-	private ImageButton mCameraWell;
-	private ImageButton mCameraAlbum;
+	// 拍照
 	private ImageButton mCameraTake;
-	private ImageButton mCameraMore;
 	// 拍照预览
 	private FrameLayout mCameraPreview;
+	// 拍照按钮旋转动画
+	private Animation takePhotoAnimation;
 
 	private SurfaceViewManager mSurfaceViewManager;
 
@@ -41,14 +42,11 @@ public class CameraActivity extends Activity implements OnClickListener {
 
 		mCameraBack = (ImageButton) findViewById(R.id.ibtn_camera_back);
 		mCameraBack.setOnClickListener(this);
-		mCameraWell = (ImageButton) findViewById(R.id.ibtn_camera_well);
-		mCameraWell.setOnClickListener(this);
-		mCameraAlbum = (ImageButton) findViewById(R.id.ibtn_camera_album);
-		mCameraAlbum.setOnClickListener(this);
 		mCameraTake = (ImageButton) findViewById(R.id.ibtn_camera_take);
 		mCameraTake.setOnClickListener(this);
-		mCameraMore = (ImageButton) findViewById(R.id.ibtn_camera_more);
-		mCameraMore.setOnClickListener(this);
+		
+
+		takePhotoAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 		// 传入第第二个参数为媒体类型，第三个参数为控件动画
 		mSurfaceViewManager = new SurfaceViewManager(this, MEDIA_TYPE_CAMERA,
 				btAnimation);
@@ -64,17 +62,9 @@ public class CameraActivity extends Activity implements OnClickListener {
 		case R.id.ibtn_camera_back:
 			finish();
 			break;
-		case R.id.ibtn_camera_well:
-
-			break;
-		case R.id.ibtn_camera_album:
-
-			break;
 		case R.id.ibtn_camera_take:
 			mSurfaceViewManager.takePhoto();
-			break;
-		case R.id.ibtn_camera_more:
-
+            mCameraTake.startAnimation(takePhotoAnimation);
 			break;
 		}
 	}
@@ -84,12 +74,8 @@ public class CameraActivity extends Activity implements OnClickListener {
 		@Override
 		public void executeAnimation(Animation animation) {
 			mCameraBack.startAnimation(animation);
-			mCameraWell.startAnimation(animation);
-			mCameraAlbum.startAnimation(animation);
 			mCameraTake.startAnimation(animation);
-			mCameraMore.startAnimation(animation);
-
 		}
 	};
-	
+
 }

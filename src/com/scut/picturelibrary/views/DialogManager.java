@@ -1,13 +1,24 @@
 package com.scut.picturelibrary.views;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.SimpleAdapter.ViewBinder;
 
 import com.scut.picturelibrary.R;
 
@@ -21,34 +32,29 @@ public class DialogManager {
 	private static Dialog mDialog;
 	private static Dialog nDialog;
 	private static ProgressDialog mProgressDialog;
-	private static TextView path_textview;
-	private static TextView time_textview;
-	private static TextView filesize_textview;
-	private static TextView size_textview;
-	private static TextView time_name_textview;
-	private static TextView video_textview;
-	private static TextView video_name_textview;
 
-	public static void showImageItemMenuDialog(Context context, String title, DialogInterface.OnClickListener listener) {
+	public static void showImageItemMenuDialog(Context context, String title,
+			DialogInterface.OnClickListener listener) {
 		dismissDialog();
 		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(
 				context);
 		// 设置对话框的标题
 		builder.setTitle(title);
-		builder.setItems(new String[] { "识图", "分享", "属性" }, listener);
+		builder.setItems(new String[] { "识图", "分享", "属性", "编辑" }, listener);
 		// 创建一个列表对话框
 		mDialog = builder.create();
 		mDialog.show();
 	}
 
-	public static void showVideoItemMenuDialog(Context context, String title, DialogInterface.OnClickListener listener) {
+	public static void showVideoItemMenuDialog(Context context, String title,
+			DialogInterface.OnClickListener listener) {
 		dismissDialog();
 		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(
 				context);
 
 		// 设置对话框的标题
 		builder.setTitle(title);
-		builder.setItems(new String[] {"属性" }, listener);
+		builder.setItems(new String[] { "预览","属性" }, listener);
 		// 创建一个列表对话框
 		mDialog = builder.create();
 		mDialog.show();
@@ -57,22 +63,26 @@ public class DialogManager {
 	public static void showImagePropertyDialog(Context context, String title,
 			String path, String filesize, String size, String time) {// 因为layout没被载入所以要获取布局文件对象
 		LayoutInflater inflater = LayoutInflater.from(context);
-		// 不能导入android.R,ctrl+shift+o
+
 		View layout = inflater.inflate(R.layout.dialog_property, null);
 		android.app.AlertDialog.Builder builder_Property = new android.app.AlertDialog.Builder(
 				context);
-		path_textview = (TextView) layout.findViewById(R.id.path);
+		TextView path_textview = (TextView) layout.findViewById(R.id.path);
 		path_textview.setText(path);
-		time_textview = (TextView) layout.findViewById(R.id.time);
+		
+		TextView time_textview = (TextView) layout.findViewById(R.id.time);
 		time_textview.setText(time);
-		filesize_textview = (TextView) layout.findViewById(R.id.filesize);
+		
+		TextView filesize_textview = (TextView) layout
+				.findViewById(R.id.filesize);
 		filesize_textview.setText(filesize);
-		video_textview=(TextView) layout.findViewById(R.id.video);
-		video_name_textview=(TextView) layout.findViewById(R.id.video_name);
+		TextView video_textview=(TextView) layout.findViewById(R.id.video);
+		TextView video_name_textview=(TextView) layout.findViewById(R.id.video_name);
 		video_textview.setVisibility(View.GONE);
 		video_name_textview.setVisibility(View.GONE);
-		size_textview = (TextView) layout.findViewById(R.id.size);
+		TextView size_textview = (TextView) layout.findViewById(R.id.size);
 		size_textview.setText(size);
+		
 		builder_Property.setTitle(title).setView(layout)
 				.setPositiveButton("确定", new OnClickListener() {
 
@@ -86,31 +96,32 @@ public class DialogManager {
 		nDialog.show();
 
 	}
+
 	public static void showVideoPropertyDialog(Context context, String title,
-			String path, String filesize, String size,String videotime ,String time) {// 因为layout没被载入所以要获取布局文件对象
+			String path, String filesize, String size, String videotime,
+			String time) {// 因为layout没被载入所以要获取布局文件对象
 		LayoutInflater inflater = LayoutInflater.from(context);
 		// 不能导入android.R,ctrl+shift+o
 		View layout = inflater.inflate(R.layout.dialog_property, null);
 		android.app.AlertDialog.Builder builder_Property = new android.app.AlertDialog.Builder(
 				context);
-		path_textview = (TextView) layout.findViewById(R.id.path);
-		size_textview = (TextView) layout.findViewById(R.id.size);
-		time_textview = (TextView) layout.findViewById(R.id.time);
-		filesize_textview = (TextView) layout.findViewById(R.id.filesize);
-		time_name_textview=(TextView) layout.findViewById(R.id.time_name);
-		video_textview=(TextView) layout.findViewById(R.id.video);
-		video_name_textview=(TextView) layout.findViewById(R.id.video_name);
+		TextView path_textview = (TextView) layout.findViewById(R.id.path);
+		TextView size_textview = (TextView) layout.findViewById(R.id.size);
+		TextView time_textview = (TextView) layout.findViewById(R.id.time);
+		TextView filesize_textview = (TextView) layout.findViewById(R.id.filesize);
+		TextView time_name_textview = (TextView) layout.findViewById(R.id.time_name);
+		TextView video_textview = (TextView) layout.findViewById(R.id.video);
+		TextView video_name_textview = (TextView) layout.findViewById(R.id.video_name);		
 		path_textview.setText(path);
 		time_textview.setText(videotime);
 		video_textview.setVisibility(View.VISIBLE);
 		video_name_textview.setVisibility(View.VISIBLE);
-	    video_textview.setText(time);
-        filesize_textview.setText(filesize);
-	    time_name_textview.setText("时长");
-        size_textview.setText(size);
+		video_textview.setText(time);
+		filesize_textview.setText(filesize);
+		time_name_textview.setText("时长");
+		size_textview.setText(size);	
 		builder_Property.setTitle(title).setView(layout)
 				.setPositiveButton("确定", new OnClickListener() {
-
 					@Override
 					public void onClick(DialogInterface arg0, int arg1) {
 
@@ -121,6 +132,55 @@ public class DialogManager {
 		nDialog.show();
 
 	}
+	public static void showVideoPreview(Context context,String path,int time)
+	{//初始化对话框布局
+		LayoutInflater l = LayoutInflater.from(context);
+	View v = l.inflate(R.layout.video_preview,null);
+	GridView gw = (GridView)v.findViewById(R.id.gw);
+	MediaMetadataRetriever md = new MediaMetadataRetriever();
+	md.setDataSource(path);
+	List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+	if(time<9)
+	{for (int i=1; i < time+1; i++) {
+		//影片截图
+		Bitmap bmp = md.getFrameAtTime(i * 1000 * 1000,
+				MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("img", bmp);
+		list.add(map);}}
+	else{for (int i=time/9; i < time+1; i = i+time/9) {
+		Bitmap bmp = md.getFrameAtTime(i * 1000 * 1000,
+				MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("img", bmp);
+		list.add(map);}
+	}
+	SimpleAdapter ada = new SimpleAdapter(context, list,
+			R.layout.grid_preview_item, new String[] { "img" },
+			new int[] { R.id.img_grid_preview });
+	ada.setViewBinder(new ViewBinder() {
+		@Override
+		public boolean setViewValue(View view, Object data,
+				String textRepresentation) {
+			//simpleadapter中放bitmap
+			if ((view instanceof ImageView) & (data instanceof Bitmap)) {
+				ImageView iv = (ImageView) view;
+				Bitmap bmp = (Bitmap) data;
+				iv.setImageBitmap(bmp);
+				return true;
+			}
+			return false;
+		}
+	});
+	gw.setAdapter(ada);
+	android.app.AlertDialog.Builder builder_Preview = new android.app.AlertDialog.Builder(
+			context);
+	builder_Preview.setTitle("预览").setView(v).setPositiveButton("确定", new OnClickListener() {	
+		@Override
+		public void onClick(DialogInterface dialog, int which) {}
+	});
+	builder_Preview.create().show();}
+
 	public static void showProgressDialog(Context context,
 			ProgressDialog.OnClickListener cancelListener) {
 		dismissDialog();

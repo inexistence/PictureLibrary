@@ -3,8 +3,8 @@ package com.scut.picturelibrary.activity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -14,7 +14,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +32,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -44,6 +44,7 @@ import cn.sharesdk.onekeyshare.OnekeyShare;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.scut.picturelibrary.Constants;
 import com.scut.picturelibrary.R;
 import com.scut.picturelibrary.adapter.InSimiGridViewAdapter;
 import com.scut.picturelibrary.adapter.MediaFilesAdapter;
@@ -54,6 +55,8 @@ import com.scut.picturelibrary.views.DialogManager;
 public class SearchImageActivity extends ActionBarActivity implements
 		LoaderCallbacks<Cursor> {
 
+	private GetWorkerTask mSearchTask;
+
 	private GridView mGridView;
 	private MediaFilesAdapter mAdapter;
 	private final int LOAD_ID = 0x20150401;
@@ -61,6 +64,7 @@ public class SearchImageActivity extends ActionBarActivity implements
 	private TabHost mtabhost;
 	private GridView nGridView;
 	private TextView textview;
+	private TextView textview1;
 	private final String SORT_BY_NAME = MediaStore.Images.Media.DISPLAY_NAME;
 	private final String SORT_BY_DATE = MediaStore.Images.Media.DATE_MODIFIED;
 	private String mSort = SORT_BY_NAME;
@@ -72,19 +76,19 @@ public class SearchImageActivity extends ActionBarActivity implements
 		setContentView(R.layout.search_files);
 		getSupportLoaderManager().initLoader(LOAD_ID, null, this);
 		// 初始化视图
-		initView();
-
+		initView();	
 		initListener();
 	}
 
 	private void initView() {
 		textview = (TextView) findViewById(R.id.tv);
+		textview1 = (TextView) findViewById(R.id.tv1);
 		mtabhost = (TabHost) findViewById(R.id.tabhost);
 		mtabhost.setup();
 		mtabhost.addTab(mtabhost.newTabSpec("tab1").setIndicator("本地图片")
 				.setContent(R.id.local));
 		mtabhost.addTab(mtabhost.newTabSpec("tab2").setIndicator("网络图片")
-				.setContent(R.id.grid_net_files));
+				.setContent(R.id.net));
 		mGridView = (GridView) findViewById(R.id.grid_local_files);
 		mAdapter = new MediaFilesAdapter(this, null);
 		mGridView.setAdapter(mAdapter);
@@ -107,32 +111,35 @@ public class SearchImageActivity extends ActionBarActivity implements
 				// TODO 点击显示完整图片or播放视频
 				// 目前是调用外部程序
 				String path = mAdapter.getPath(position);
-				Uri uri = Uri.parse("file:///" + path);
 				if (mAdapter.getType(position).equals("video"))// 视频
 				{
-				Intent intent = new Intent();
-				intent.setClass(SearchImageActivity.this,
-						VideoActivity.class);
-				intent.putExtra("filePath", path);
-				startActivity(intent);}
-				else { // 图片
+					Intent intent = new Intent();
+					intent.setClass(SearchImageActivity.this,
+							VideoActivity.class);
+					intent.putExtra("filePath", path);
+					startActivity(intent);
+				} else { // 图片
 					Intent it = new Intent();
-					int count = mAdapter.getCount();
-					String[] path_base = new String[count];
+					List<String> pathList = new ArrayList<String>();
+					// 图片的位置（去除掉视频之后）
+					int curPositonForImage = position;
 					for (int i = 0; i < mAdapter.getCount(); i++) {
-						path_base[i] = mAdapter.getPath(i);
+						if (mAdapter.getType(i).equals("image")) {
+							pathList.add("file:///"+mAdapter.getPath(i));
+						} else if (i < position) {// 存在视频且该视频在本图片前方
+							curPositonForImage -= 1;
+						}
 					}
+					String[] pathArray = new String[pathList.size()];
+					pathList.toArray(pathArray);
+					it.putExtra(Constants.IMAGE_URLS, pathArray);
+					it.putExtra(Constants.IMAGE_POSITION, curPositonForImage);
 
-					it.putExtra("path", path);
-					it.putExtra("uri", uri);
-					it.putExtra("position", position);
-					it.putExtra("count", count);
-					it.putExtra("path_all", path_base);
 					it.setClass(SearchImageActivity.this,
-							ImageViewActivity.class);
+							SimpleImageActivity.class);
 					startActivity(it);
 				}
-		
+
 			}
 		});
 		mGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -146,19 +153,29 @@ public class SearchImageActivity extends ActionBarActivity implements
 				if (mAdapter.getType(position).equals("video")) {// 视频
 					final String VideoTime = mAdapter.getVideoTime(position);
 					final String size = mAdapter.getVideoSize(position);
-					DialogManager.showVideoItemMenuDialog(SearchImageActivity.this, filename,
+					final int VideoSecond = mAdapter.getVideoSecond(position);
+					DialogManager.showVideoItemMenuDialog(
+							SearchImageActivity.this, filename,
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-						if(which==0)
-						{DialogManager.showVideoPropertyDialog(
-								SearchImageActivity.this,
-								filename, path, filesize,size, VideoTime,
-								time);}
-									
-								}});}
-					
+									switch (which) {
+									case 0:
+										DialogManager.showVideoPreview(SearchImageActivity.this,path,VideoSecond);
+										break;
+									case 1:
+										DialogManager.showVideoPropertyDialog(
+												SearchImageActivity.this,
+												filename, path, filesize, size,
+												VideoTime, time);
+										break;
+									default:
+										break;
+									}
+								}});
+				}
+
 				else { // 图片
 					final String size = mAdapter.getImageSize(position);
 					DialogManager.showImageItemMenuDialog(
@@ -187,6 +204,14 @@ public class SearchImageActivity extends ActionBarActivity implements
 												filename, path, filesize, size,
 												time);
 										break;
+									case 3:
+										Intent it = new Intent();
+										it.setClass(SearchImageActivity.this,
+												FilterActivity.class);
+										it.putExtra("uri", "file:///" + path);
+										SearchImageActivity.this
+												.startActivity(it);
+										break;
 									default:
 										break;
 									}
@@ -209,8 +234,49 @@ public class SearchImageActivity extends ActionBarActivity implements
 				startActivity(intent);
 			}
 		});
+		textview1.setOnClickListener(new OnClickListener() {			
+			@Override
+			public void onClick(View v) {
+				textview1.setVisibility(View.GONE);
+				Log.v("text",query);
+            getSearchImage(query);
+            nGridView.setVisibility(View.VISIBLE);
+			}
+		});
 	}
+	//搜索选项卡
+		public boolean onCreateOptionsMenu(Menu menu) {
+			getMenuInflater().inflate(R.menu.search, menu);
+			final MenuItem action_search = menu.findItem(R.id.action_search);
+			final SearchView searchView = (SearchView) action_search
+					.getActionView();
+			action_search.expandActionView();
+			searchView.setOnQueryTextListener(new OnQueryTextListener() {
+				@Override
+				public boolean onQueryTextChange(String text) {
+					Log.v("text", text);
+					if (text != null) {
+						query = text;
+						if(	mtabhost.getCurrentTabTag()=="tab2"){
+							nGridView.setVisibility(View.GONE);
+							textview1.setVisibility(View.VISIBLE);		
+							textview1.setText("   查找'"+text+"'相关的图片");
+							nAdapter.clear();}
+						// 获取搜索内容
+						getSupportLoaderManager().restartLoader(LOAD_ID, null,
+								SearchImageActivity.this);
+					}
+					return false;
+				}
+				@Override
+				public boolean onQueryTextSubmit(String arg0) {
 
+					return false;
+				}
+			});
+
+			return true;
+		}
 	// 显示网络图片
 	private void displayImage(JSONObject json) throws JSONException {
 		// 从网页返回的json取data数组
@@ -223,9 +289,9 @@ public class SearchImageActivity extends ActionBarActivity implements
 		{
 			thumbURL = ((JSONObject) jsonarray.get(i)).getString("thumbURL");
 
-			fromURL=((JSONObject)jsonarray.get(i)).getString("fromURL");
+			fromURL = ((JSONObject) jsonarray.get(i)).getString("fromURL");
 			// 适配器中加上图片地址,适配器地址添加位置
-			Map<String,String> map = new HashMap<String, String>();
+			Map<String, String> map = new HashMap<String, String>();
 
 			// 适配器中加上图片地址
 
@@ -237,11 +303,25 @@ public class SearchImageActivity extends ActionBarActivity implements
 	}
 
 	private void getSearchImage(String keyword) {
-		mSearchUrl = "http://image.baidu.com/i?tn=baiduimagejson&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=1349413075627_R&pv=&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&word="
-				+ keyword + "&rn=21&pn=1";
-		;
-		GetWorkerTask task = new GetWorkerTask();
-		task.execute(mSearchUrl);
+		cancelSearchNetTask();
+		if (keyword != null && keyword.trim().length() > 0) {
+			mSearchUrl = "http://image.baidu.com/i?tn=baiduimagejson&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=1349413075627_R&pv=&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&rn=21&pn=0&ie=utf-8&word="
+					+ keyword;
+			mSearchTask = new GetWorkerTask();
+			mSearchTask.execute(mSearchUrl);
+		}
+	}
+
+	protected void cancelSearchNetTask() {
+		if (mSearchTask != null) {
+			mSearchTask.cancel(false);
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		cancelSearchNetTask();
 	}
 
 	// 获取返回的Json,并进行displayimage的操作
@@ -278,41 +358,11 @@ public class SearchImageActivity extends ActionBarActivity implements
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("no result");
+				// System.out.println("no result");
 			}
 		}
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.search, menu);
-		final MenuItem action_search = menu.findItem(R.id.action_search);
-		final SearchView searchView = (SearchView) action_search
-				.getActionView();
-		action_search.expandActionView();
-		searchView.setOnQueryTextListener(new OnQueryTextListener() {
-			@Override
-			public boolean onQueryTextChange(String text) {
-				Log.v("text", text);
-				if (text != null) {
-					query = text;
-					// 获取搜索内容
-					getSupportLoaderManager().restartLoader(LOAD_ID, null,
-							SearchImageActivity.this);
-				}
-				return false;
-			}
-			@Override
-			public boolean onQueryTextSubmit(String arg0) {
-				if(	mtabhost.getCurrentTabTag()=="tab2"){
-					nAdapter.clear();
-				getSearchImage(searchView.getQuery().toString());				
-				searchView.clearFocus();}
-				return false;
-			}
-		});
-
-		return true;
-	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -386,7 +436,7 @@ public class SearchImageActivity extends ActionBarActivity implements
 		// imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
 		oks.setImagePath(path);// 确保SDcard下面存在此张图片
 		// url仅在微信（包括好友和朋友圈）中使用
-		oks.setUrl("http://sharesdk.cn");
+		// oks.setUrl("http://sharesdk.cn");
 		// comment是我对这条分享的评论，仅在人人网和QQ空间使用
 		oks.setComment("我是测试评论文本");
 		// site是分享此内容的网站名称，仅在QQ空间使用

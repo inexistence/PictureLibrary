@@ -53,8 +53,6 @@ public class CameraManager {
 	@SuppressLint("NewApi")
 	public Camera getMyCamera(Context context) {
 		mCamera = CameraCheck.getCameraInstance(context);
-		// 设置预览的角度，因为默认照片是倾斜90度
-		mCamera.setDisplayOrientation(90);
 		return mCamera;
 
 	}
@@ -63,7 +61,6 @@ public class CameraManager {
 	// 设置预览时的图像和拍照的参数
 	public void setCameraParameters(Camera camera) {
 		Camera.Parameters parameters = camera.getParameters();
-		parameters.setRotation(90);
 		List<Camera.Size> mSupportedsizeList = parameters
 				.getSupportedPictureSizes();
 		if (mSupportedsizeList.size() > 1) {

@@ -1,26 +1,43 @@
 package com.scut.picturelibrary.activity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Text;
+
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.GridView;
+import android.widget.TextView;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.scut.picturelibrary.Constants;
 import com.scut.picturelibrary.R;
 import com.scut.picturelibrary.adapter.MediaFilesAdapter;
 import com.scut.picturelibrary.loader.MediaFilesCursorLoader;
@@ -44,20 +61,22 @@ public class MediaFilesActivity extends ActionBarActivity implements
 	 * GridView的适配器
 	 */
 	private MediaFilesAdapter mAdapter;
+	
 
-	private final String SORT_BY_NAME = MediaStore.Images.Media.DISPLAY_NAME;
-	private final String SORT_BY_DATE = MediaStore.Images.Media.DATE_MODIFIED;
-
-	private String mSort = SORT_BY_NAME;
+	private String mSort = Constants.FILE_SORT_DEFAULT;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_files);
+		// 设置Title为文件夹名
+		String bucketName = getIntent().getStringExtra("bucketName");
+		setTitle(bucketName);
 		// 进行cursorloader初始化
 		getSupportLoaderManager().initLoader(LOAD_ID, null, this);
 		// 初始化视图
 		initView();
+		
 		// 设置监听器
 		initListener();
 	}
@@ -88,20 +107,23 @@ public class MediaFilesActivity extends ActionBarActivity implements
 					startActivity(intent);
 				} else { // 图片
 					Intent it = new Intent();
-					Uri uri = Uri.parse("file:///" + path);
-					int count = mAdapter.getCount();
-					String[] path_base = new String[count];
+					List<String> pathList = new ArrayList<String>();
+					// 图片的位置（去除掉视频之后）
+					int curPositonForImage = position;
 					for (int i = 0; i < mAdapter.getCount(); i++) {
-						path_base[i] = mAdapter.getPath(i);
+						if (mAdapter.getType(i).equals("image")) {
+							pathList.add("file:///" + mAdapter.getPath(i));
+						} else if (i < position) {// 存在视频且该视频在本图片前方
+							curPositonForImage -= 1;
+						}
 					}
+					String[] pathArray = new String[pathList.size()];
+					pathList.toArray(pathArray);
+					it.putExtra(Constants.IMAGE_URLS, pathArray);
+					it.putExtra(Constants.IMAGE_POSITION, curPositonForImage);
 
-					it.putExtra("path", path);
-					it.putExtra("uri", uri);
-					it.putExtra("position", position);
-					it.putExtra("count", count);
-					it.putExtra("path_all", path_base);
 					it.setClass(MediaFilesActivity.this,
-							ImageViewActivity.class);
+							SimpleImageActivity.class);
 					startActivity(it);
 				}
 
@@ -119,22 +141,33 @@ public class MediaFilesActivity extends ActionBarActivity implements
 				if (mAdapter.getType(position).equals("video")) {// 视频
 					final String VideoTime = mAdapter.getVideoTime(position);
 					final String size = mAdapter.getVideoSize(position);
-					DialogManager.showVideoItemMenuDialog(MediaFilesActivity.this, filename,
+					final int VideoSecond = mAdapter.getVideoSecond(position);
+					DialogManager.showVideoItemMenuDialog(
+							MediaFilesActivity.this, filename,
 							new DialogInterface.OnClickListener() {
 
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-						if(which==0)
-						{DialogManager.showVideoPropertyDialog(
-								MediaFilesActivity.this,
-								filename, path, filesize,size, VideoTime,
-								time);}
-									
-								}});
-					
+									switch (which) {
+									case 0:
+										DialogManager.showVideoPreview(MediaFilesActivity.this,path,VideoSecond);
+										break;
+									case 1:
+										DialogManager.showVideoPropertyDialog(
+												MediaFilesActivity.this,
+												filename, path, filesize, size,
+												VideoTime, time);
+										break;
+									default:
+										break;
+									}
+
+								}
+							});
+
 				} else { // 图片
-		
+
 					final String size = mAdapter.getImageSize(position);
 					DialogManager.showImageItemMenuDialog(
 							MediaFilesActivity.this, filename,
@@ -163,6 +196,14 @@ public class MediaFilesActivity extends ActionBarActivity implements
 												filename, path, filesize, size,
 												time);
 										break;
+									case 3:
+										Intent it = new Intent();
+										it.setClass(MediaFilesActivity.this,
+												FilterActivity.class);
+										it.putExtra("uri", "file:///" + path);
+										MediaFilesActivity.this
+												.startActivity(it);
+										break;
 									default:
 										break;
 									}
@@ -187,9 +228,9 @@ public class MediaFilesActivity extends ActionBarActivity implements
 		Intent intentMedia = new Intent();
 		switch (id) {// 根据选项进行排序
 		case R.id.action_sort_name:
-			return resort(SORT_BY_NAME);
+			return resort(Constants.SORT_BY_NAME);
 		case R.id.action_sort_date:
-			return resort(SORT_BY_DATE);
+			return resort(Constants.SORT_BY_DATE);
 			// 开始拍照或录像
 		case R.id.action_activity_camera:
 			intentMedia.setClass(MediaFilesActivity.this, CameraActivity.class);
@@ -290,4 +331,5 @@ public class MediaFilesActivity extends ActionBarActivity implements
 		// 启动分享GUI
 		oks.show(this);
 	}
+	
 }

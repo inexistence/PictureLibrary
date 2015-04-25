@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -25,6 +26,7 @@ import com.scut.picturelibrary.animation.MyRecorderButtonAnimation;
  */
 public class SurfaceViewManager extends SurfaceView implements
 		SurfaceHolder.Callback {
+
 	// 媒体类型，相机或者视频播放器
 	private int mediaType;
 
@@ -48,6 +50,8 @@ public class SurfaceViewManager extends SurfaceView implements
 	private MediaRecorderManager mRecorderManager;
 
 	private VideoManager mVideoManager;
+	// 设置相机对焦监听
+	private OnCameraStatusListener listener;
 
 	private OnPreparedListener mOnPreparedListener;
 
@@ -108,6 +112,7 @@ public class SurfaceViewManager extends SurfaceView implements
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int arg1, int width,
 			int height) {
+
 	}
 
 	@Override
@@ -115,6 +120,8 @@ public class SurfaceViewManager extends SurfaceView implements
 		switch (mediaType) {
 		case 1:
 			openCamera(holder);
+			// 设置预览的角度
+			mCamera.setDisplayOrientation(lastBtOrientation + 90);
 			break;
 
 		case 2:
@@ -165,7 +172,7 @@ public class SurfaceViewManager extends SurfaceView implements
 
 			break;
 		case 3:
-			
+
 			break;
 		}
 	}
@@ -222,13 +229,39 @@ public class SurfaceViewManager extends SurfaceView implements
 					break;
 				}
 				lastBtOrientation = phoneRotation;
-
+				if (mCamera != null) {
+					// 随着横竖屏切换，设置预览的角度
+					mCamera.setDisplayOrientation(lastBtOrientation + 90);
+				}
 			}
 		}
 	}
 
 	public void takePhoto() {
-		mCameraManager.takePicture();
+		if (mCamera != null) {
+			mCamera.autoFocus(new AutoFocusCallback() {
+
+				@Override
+				public void onAutoFocus(boolean success, Camera camera) {
+					if (null != listener) {
+						listener.onAutoFocus(success);
+					}
+					if (success) {
+						mCameraManager.takePicture();
+					}
+				}
+			});
+		}
+	}
+
+	public void OnCameraStatusListener(OnCameraStatusListener listener) {
+		this.listener = listener;
+	}
+
+	// 相机拍照监听接口
+	public interface OnCameraStatusListener {
+		// 对焦事件
+		void onAutoFocus(boolean success);
 	}
 
 	public void setOnPreparedListener(OnPreparedListener listener) {
@@ -270,5 +303,9 @@ public class SurfaceViewManager extends SurfaceView implements
 	public void releaseMediaRecorder() {
 		mRecorderManager.releaseMediaRecorder(mCamera);
 	}
-	
+
+	public void scanFile() {
+		mRecorderManager.scanFile();
+	}
+
 }
