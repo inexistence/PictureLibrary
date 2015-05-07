@@ -32,7 +32,7 @@
 
 ##主要界面预览
 
-###浏览图片视频
+###浏览图片视频略缩图
 
 ![浏览文件夹](./preview/preview_folders.png)
 ![浏览文件](./preview/preview_files.png)
