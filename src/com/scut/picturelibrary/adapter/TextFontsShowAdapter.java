@@ -35,20 +35,12 @@ public class TextFontsShowAdapter extends ArrayAdapter<Integer> {
 		mTextViewResourceId = textViewResourceId;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = View.inflate(mContext, mResId, null);
 		Button img = (Button) v.findViewById(mTextViewResourceId);
 		int id = getItem(position);
-		int sdk = android.os.Build.VERSION.SDK_INT;
-		if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-			img.setBackgroundDrawable(getContext().getResources().getDrawable(
-					id));
-		} else {
-			img.setBackground(getContext().getResources().getDrawable(id));
-		}
-
+		img.setBackgroundDrawable(getContext().getResources().getDrawable(id));
 		return v;
 	}
 }
