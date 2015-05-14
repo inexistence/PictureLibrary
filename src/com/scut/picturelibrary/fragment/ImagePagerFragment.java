@@ -3,7 +3,6 @@ package com.scut.picturelibrary.fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -38,14 +37,14 @@ public class ImagePagerFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		imageUrls = getArguments().getStringArray(Constants.IMAGE_URLS);
 		options = new DisplayImageOptions.Builder()
-				.resetViewBeforeLoading(true).cacheOnDisk(true)
+				.resetViewBeforeLoading(true).cacheOnDisk(false)
 				.imageScaleType(ImageScaleType.EXACTLY)
 				.bitmapConfig(Bitmap.Config.RGB_565).considerExifParams(true)
 				.displayer(new FadeInBitmapDisplayer(300)).build();
 	}
 
 	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 	}
 

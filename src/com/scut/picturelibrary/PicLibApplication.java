@@ -28,14 +28,15 @@ public class PicLibApplication extends Application {
 				.showImageOnLoading(R.drawable.bg_loading)// 图片正在加载时显示的背景
 				.cacheInMemory(true)// 缓存在内存中
 				.cacheOnDisk(true)// 缓存在磁盘中
-				.displayer(new FadeInBitmapDisplayer(400))// 显示渐变动画
+				.displayer(new FadeInBitmapDisplayer(300))// 显示渐变动画
 				.bitmapConfig(Bitmap.Config.RGB_565) // 设置图片的解码类型
 				.considerExifParams(true)// 考虑旋转角
 				.build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
 				getApplicationContext()).defaultDisplayImageOptions(displayOp)
-				.denyCacheImageMultipleSizesInMemory().build();
+				.denyCacheImageMultipleSizesInMemory()// 不解析多种尺寸
+				.build();
 
 		ImageLoader.getInstance().init(config);
 	}

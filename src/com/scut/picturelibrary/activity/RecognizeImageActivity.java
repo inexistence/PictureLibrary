@@ -192,6 +192,7 @@ public class RecognizeImageActivity extends ActionBarActivity {
 				String description = obj.get("textHost").toString();
 				String title = obj.get("fromPageTitleEnc").toString();
 				String fromURL = obj.get("fromURL").toString();
+				// 最多只显示3张相同图片
 				if (i < 3) {
 					HashMap<String, String> map = new HashMap<String, String>();
 					map.put(InSameListViewAdapter.FROM_URL, fromURL);
@@ -262,7 +263,7 @@ public class RecognizeImageActivity extends ActionBarActivity {
 			getSimiSameImage(mUploadFileUrl);
 			return;
 		}
-		// 压缩图片后上传 200x200
+		// 压缩图片后上传
 		BmobProFile bmobProFile = BmobProFile
 				.getInstance(RecognizeImageActivity.this);
 		if (bmobProFile == null) {
