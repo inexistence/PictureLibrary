@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -22,7 +23,7 @@ import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 
 import com.scut.picturelibrary.R;
-import com.scut.picturelibrary.activity.FilterActivity;
+import com.scut.picturelibrary.activity.EditActivity;
 import com.scut.picturelibrary.activity.RecognizeImageActivity;
 import com.scut.picturelibrary.utils.ShareUtil;
 
@@ -32,6 +33,7 @@ import com.scut.picturelibrary.utils.ShareUtil;
  * @author 黄建斌
  * 
  */
+@SuppressLint("InflateParams")
 public class DialogManager {
 	private static Dialog mDialog;
 	private static Dialog nDialog;
@@ -69,8 +71,9 @@ public class DialogManager {
 							break;
 						case 3:// 编辑
 							Intent it = new Intent();
-							it.setClass(context, FilterActivity.class);
-							it.putExtra("uri", "file:///" + path);
+							it.setClass(context, EditActivity.class);
+							it.putExtra("path", path);
+//							it.putExtra("uri", "file:///" + path);
 							context.startActivity(it);
 							break;
 						default:
@@ -95,35 +98,34 @@ public class DialogManager {
 		mDialog = builder.create();
 		mDialog.show();
 	}
+
 	// 显示视频长按菜单
 	public static void showVideoItemMenuDialog(final Context context,
 			String title, final String filename, final String path,
 			final String filesize, final String size, final String videotime,
-			final String time,final int videosecond) {
+			final String time, final int videosecond) {
 		dismissDialog();
 		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(
 				context);
 		// 设置对话框的标题
 		builder.setTitle(title);
-		builder.setItems(new String[] {"预览","属性" }, new OnClickListener() {
+		builder.setItems(new String[] { "预览", "属性" }, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				switch (which) {//预览
+				switch (which) {// 预览
 				case 0:
-					DialogManager.showVideoPreview(context,path,videosecond);
+					DialogManager.showVideoPreview(context, path, videosecond);
 					break;
-					//属性
+				// 属性
 				case 1:
-					DialogManager.showVideoPropertyDialog(
-							context,
-							filename, path, filesize, size,
-							videotime, time);
+					DialogManager.showVideoPropertyDialog(context, filename,
+							path, filesize, size, videotime, time);
 					break;
 				default:
 					break;
 				}
-				}
-			});
+			}
+		});
 		// 创建一个列表对话框
 		mDialog = builder.create();
 		mDialog.show();
@@ -199,56 +201,61 @@ public class DialogManager {
 		nDialog.show();
 
 	}
-	//影片预览
-	public static void showVideoPreview(Context context,String path,int time)
-	{//初始化对话框布局
-		LayoutInflater l = LayoutInflater.from(context);
-	View v = l.inflate(R.layout.video_preview,null);
-	GridView gw = (GridView)v.findViewById(R.id.gw);
-	MediaMetadataRetriever md = new MediaMetadataRetriever();
-	md.setDataSource(path);
-	List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-	if(time<9)
-	{for (int i=1; i < time+1; i++) {
-		//影片截图
-		Bitmap bmp = md.getFrameAtTime(i * 1000 * 1000,
-				MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("img", bmp);
-		list.add(map);}}
-	else{for (int i=time/9; i < time+1; i = i+time/9) {
-		Bitmap bmp = md.getFrameAtTime(i * 1000 * 1000,
-				MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("img", bmp);
-		list.add(map);}
-	}
-	SimpleAdapter ada = new SimpleAdapter(context, list,
-			R.layout.grid_preview_item, new String[] { "img" },
-			new int[] { R.id.img_grid_preview });
-	ada.setViewBinder(new ViewBinder() {
-		@Override
-		public boolean setViewValue(View view, Object data,
-				String textRepresentation) {
-			//simpleadapter中放bitmap
-			if ((view instanceof ImageView) & (data instanceof Bitmap)) {
-				ImageView iv = (ImageView) view;
-				Bitmap bmp = (Bitmap) data;
-				iv.setImageBitmap(bmp);
-				return true;
-			}
-			return false;
-		}
-	});
-	gw.setAdapter(ada);
-	android.app.AlertDialog.Builder builder_Preview = new android.app.AlertDialog.Builder(
-			context);
-	builder_Preview.setTitle("预览").setView(v).setPositiveButton("确定", new OnClickListener() {	
-		@Override
-		public void onClick(DialogInterface dialog, int which) {}
-	});
-	builder_Preview.create().show();}
 
+	// 影片预览
+	public static void showVideoPreview(Context context, String path, int time) {// 初始化对话框布局
+		LayoutInflater l = LayoutInflater.from(context);
+		View v = l.inflate(R.layout.video_preview, null);
+		GridView gw = (GridView) v.findViewById(R.id.gw);
+		MediaMetadataRetriever md = new MediaMetadataRetriever();
+		md.setDataSource(path);
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		if (time < 9) {
+			for (int i = 1; i < time + 1; i++) {
+				// 影片截图
+				Bitmap bmp = md.getFrameAtTime(i * 1000 * 1000,
+						MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("img", bmp);
+				list.add(map);
+			}
+		} else {
+			for (int i = time / 9; i < time + 1; i = i + time / 9) {
+				Bitmap bmp = md.getFrameAtTime(i * 1000 * 1000,
+						MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("img", bmp);
+				list.add(map);
+			}
+		}
+		SimpleAdapter ada = new SimpleAdapter(context, list,
+				R.layout.grid_preview_item, new String[] { "img" },
+				new int[] { R.id.img_grid_preview });
+		ada.setViewBinder(new ViewBinder() {
+			@Override
+			public boolean setViewValue(View view, Object data,
+					String textRepresentation) {
+				// simpleadapter中放bitmap
+				if ((view instanceof ImageView) & (data instanceof Bitmap)) {
+					ImageView iv = (ImageView) view;
+					Bitmap bmp = (Bitmap) data;
+					iv.setImageBitmap(bmp);
+					return true;
+				}
+				return false;
+			}
+		});
+		gw.setAdapter(ada);
+		android.app.AlertDialog.Builder builder_Preview = new android.app.AlertDialog.Builder(
+				context);
+		builder_Preview.setTitle("预览").setView(v)
+				.setPositiveButton("确定", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				});
+		builder_Preview.create().show();
+	}
 
 	// 显示进度条
 	public static void showProgressDialog(Context context,

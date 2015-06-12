@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 
+import com.scut.picturelibrary.Constants;
 import com.scut.picturelibrary.utils.SortCursor;
 
 /**
@@ -114,7 +115,10 @@ public class MediaFoldersCursorLoader extends AsyncTaskLoader<Cursor> {
 			}
 			if (cursor != null) {
 				// 排序
-				cursor = new SortCursor(cursor, mSortOrder);
+				if (mSortOrder == Constants.SORT_BY_DATE)
+					cursor = new SortCursor(cursor, mSortOrder, SortCursor.DESC);
+				else
+					cursor = new SortCursor(cursor, mSortOrder);
 				// Ensure the cursor window is filled
 				cursor.getCount();
 				cursor.registerContentObserver(mObserver);
@@ -173,7 +177,10 @@ public class MediaFoldersCursorLoader extends AsyncTaskLoader<Cursor> {
 		}
 		cursor = mc;
 		// 排序
-		cursor = new SortCursor(cursor, mSortOrder);
+		if (mSortOrder == Constants.SORT_BY_DATE)
+			cursor = new SortCursor(cursor, mSortOrder, SortCursor.DESC);
+		else
+			cursor = new SortCursor(cursor, mSortOrder);
 		if (cursor != null) {
 			// Ensure the cursor window is filled
 			cursor.getCount();

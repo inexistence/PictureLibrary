@@ -53,6 +53,12 @@ import com.scut.picturelibrary.adapter.MediaFilesAdapter;
 import com.scut.picturelibrary.loader.MediaFilesCursorLoader;
 import com.scut.picturelibrary.views.DialogManager;
 
+/**
+ * 搜索图片Activity 包括本地搜索和网络搜索
+ * 
+ * @author 陈顺忠
+ * 
+ */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class SearchImageActivity extends ActionBarActivity implements
 		LoaderCallbacks<Cursor> {
@@ -128,7 +134,7 @@ public class SearchImageActivity extends ActionBarActivity implements
 					int curPositonForImage = position;
 					for (int i = 0; i < mAdapter.getCount(); i++) {
 						if (mAdapter.getType(i).equals("image")) {
-							pathList.add("file:///"+mAdapter.getPath(i));
+							pathList.add("file:///" + mAdapter.getPath(i));
 						} else if (i < position) {// 存在视频且该视频在本图片前方
 							curPositonForImage -= 1;
 						}
@@ -160,7 +166,7 @@ public class SearchImageActivity extends ActionBarActivity implements
 					// 显示视频长按菜单
 					DialogManager.showVideoItemMenuDialog(
 							SearchImageActivity.this, filename, filename, path,
-							filesize, size, videoTime, time,videosecond);
+							filesize, size, videoTime, time, videosecond);
 				}
 
 				else { // 图片
@@ -221,13 +227,13 @@ public class SearchImageActivity extends ActionBarActivity implements
 				startActivity(intent);
 			}
 		});
-		textview1.setOnClickListener(new OnClickListener() {			
+		textview1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				textview1.setVisibility(View.GONE);
-				Log.v("text",query);
-            getSearchImage(query);
-            nGridView.setVisibility(View.VISIBLE);
+				Log.v("text", query);
+				getSearchImage(query);
+				nGridView.setVisibility(View.VISIBLE);
 			}
 		});
 	}
@@ -330,15 +336,14 @@ public class SearchImageActivity extends ActionBarActivity implements
 				Log.v("text", text);
 				if (text != null) {
 					query = text;
-					if(	mtabhost.getCurrentTabTag()=="tab2"){
-						nGridView.setVisibility(View.GONE);
-						textview1.setVisibility(View.VISIBLE);		
-						textview1.setText("   查找'"+text+"'相关的图片");
-						nAdapter.clear();}
-					// 获取搜索内容
-					getSupportLoaderManager().restartLoader(LOAD_ID, null,
-							SearchImageActivity.this);
+					nGridView.setVisibility(View.GONE);
+					textview1.setVisibility(View.VISIBLE);
+					textview1.setText("   查找'" + text + "'相关的图片");
+					nAdapter.clear();
 				}
+				// 获取搜索内容
+				getSupportLoaderManager().restartLoader(LOAD_ID, null,
+						SearchImageActivity.this);
 				return false;
 			}
 

@@ -7,8 +7,6 @@ import java.util.List;
 import android.content.Context;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.view.SurfaceHolder;
 
 import com.scut.picturelibrary.utils.CameraCheck;
@@ -24,7 +22,7 @@ public class MediaRecorderManager {
 
 	public static final int MEDIA_TYPE_RECORDER = 3;
 
-	private Context context;
+	// private Context context;
 
 	private Camera mCamera;
 
@@ -34,7 +32,7 @@ public class MediaRecorderManager {
 
 	public MediaRecorderManager(Context context) {
 		super();
-		this.context = context;
+		// this.context = context;
 		mediaRecorder = new MediaRecorder();
 	}
 
@@ -48,20 +46,22 @@ public class MediaRecorderManager {
 		return mediaRecorder;
 	}
 
-	public void startRecord(Camera camera, SurfaceHolder holder) {
+	public String startRecord(Camera camera, SurfaceHolder holder,
+			int orientation) {
 		mediaRecorder.reset();
-		List<Camera.Size> videoSize = camera.getParameters().getSupportedVideoSizes();
+		List<Camera.Size> videoSize = camera.getParameters()
+				.getSupportedVideoSizes();
 		camera.unlock();
 		mediaRecorder.setCamera(camera);
-		//设置方向
-		mediaRecorder.setOrientationHint(90);
+		// 设置方向
+		mediaRecorder.setOrientationHint(orientation);
 		// 设置录音源
 		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		// 设置视频源
 		mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		// 设置输出格式，视频和声音的编码格式
 		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		int setFixVideoWidth = 0,setFixVideoHeight = 0;
+		int setFixVideoWidth = 0, setFixVideoHeight = 0;
 		Iterator<Camera.Size> itos = videoSize.iterator();
 		while (itos.hasNext()) {
 			Camera.Size curSize = itos.next();
@@ -94,27 +94,22 @@ public class MediaRecorderManager {
 		} catch (IOException e) {
 
 		}
+		return filePath;
 	}
 
-	public void releaseMediaRecorder(Camera camera) {
+	public void releaseMediaRecorder(Camera camera, boolean isRecording,
+			boolean useAgain) {
 		if (mediaRecorder != null) {
-			mediaRecorder.stop();
+			if (isRecording) {// stop必须在start之后才能调用
+				mediaRecorder.stop();
+			}
 			mediaRecorder.reset();
-			mediaRecorder.release();
-			mediaRecorder = null;
+			if (!useAgain) {// 要再次使用就不能释放也不能置为空，除非重新new一个
+				mediaRecorder.release();
+				mediaRecorder = null;
+			}
 			camera.lock();
 		}
-	}
-
-	// 根据文件路径扫描照片文件
-	public void scanFile() {
-
-		MediaScannerConnection.scanFile(context, new String[] { filePath },
-				null, new MediaScannerConnection.OnScanCompletedListener() {
-
-					public void onScanCompleted(String path, Uri uri) {
-					}
-				});
 	}
 
 }

@@ -1,0 +1,121 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff" >
+
+        <RelativeLayout
+            android:id="@+id/rl_text_setting_font_color"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true" >
+
+            <TextView
+                android:id="@+id/ic_text_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:drawableTop="@drawable/ic_text_color"
+                android:text="字体颜色"
+                android:textColor="#333333" />
+
+            <Button
+                android:id="@+id/btn_text_setting_font_color_white"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/ic_text_color"
+                android:background="@drawable/bg_stroke_circle"
+                android:padding="10dp"
+                android:text="白"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/btn_text_setting_font_color_black"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/btn_text_setting_font_color_white"
+                android:background="@drawable/bg_circle_black"
+                android:padding="10dp"
+                android:text="黑"
+                android:textColor="#ffffff" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ll_text_setting_font_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="right" >
+
+            <TextView
+                android:id="@+id/ic_text_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:drawableTop="@drawable/ic_text_size"
+                android:text="字体大小"
+                android:textColor="#333333" />
+
+            <Button
+                android:id="@+id/btn_text_setting_add_size"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/ic_text_size"
+                android:background="@drawable/ic_add" />
+
+            <Button
+                android:id="@+id/btn_text_setting_sub_size"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/btn_text_setting_add_size"
+                android:background="@drawable/ic_sub" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_text_setting_font_size"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/ic_text_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:drawableTop="@drawable/ic_text_alpha"
+                android:text="透明度"
+                android:textColor="#333333" />
+
+            <Button
+                android:id="@+id/btn_text_setting_add_alpha"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/ic_text_alpha"
+                android:background="@drawable/ic_add" />
+
+            <Button
+                android:id="@+id/btn_text_setting_sub_alpha"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/btn_text_setting_add_alpha"
+                android:background="@drawable/ic_sub" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</ScrollView>

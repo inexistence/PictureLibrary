@@ -3,7 +3,10 @@ package com.scut.picturelibrary.utils;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
+import android.content.Context;
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 
 public class FileUtil {
@@ -32,7 +35,7 @@ public class FileUtil {
 			}
 		}
 		// 获取当前时间作为文件名
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.CHINA)
 				.format(new Date());
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
@@ -45,7 +48,20 @@ public class FileUtil {
 
 			return null;
 		}
- 
+
 		return mediaFile;
+	}
+
+	/**
+	 * 根据文件路径扫描文件
+	 * 
+	 * @param context
+	 * @param filePath
+	 */
+	public static void scanFiles(Context context, String filePath) {
+		if (context == null || filePath == null)
+			return;
+		MediaScannerConnection.scanFile(context, new String[] { filePath },
+				null, null);
 	}
 }

@@ -1,8 +1,12 @@
 package com.scut.picturelibrary.utils;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -173,7 +177,60 @@ public class ImageUtil {
 
 		return imageSize;
 	}
+	public static Bitmap decodeInSampleFromPath(String pathName, int reqWidth,
+			int reqHeight) {
+		// 第一次解析将inJustDecodeBounds设置为true，来获取图片大小
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(pathName, options);
+		// 调用上面定义的方法计算inSampleSize值
+		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+		// 使用获取到的inSampleSize值再次解析图片
+		options.inJustDecodeBounds = false;
+		return BitmapFactory.decodeFile(pathName, options);
+	}
+	public static Bitmap decodeInSampleBitmapFromUri(
+			ContentResolver contextResolver, Uri uri, int reqWidth,
+			int reqHeight) {
+		Cursor cursor = contextResolver.query(uri, null, null, null, null);
+		cursor.moveToFirst();
+		String path = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Images.Media.DATA));
+		return decodeInSampleFromPath(path, reqWidth, reqHeight);
+	}
+	/**
+	 * 获取View的bitmap
+	 * @param v
+	 * @return
+	 */
+	public static Bitmap getViewBitmap(View v) {
+		v.clearFocus();
+		v.setPressed(false);
+		
+		boolean willNotCache = v.willNotCacheDrawing();
+		v.setWillNotCacheDrawing(false);
 
+		int color = v.getDrawingCacheBackgroundColor();
+		v.setDrawingCacheBackgroundColor(0);
+
+		if (color != 0) {
+			v.destroyDrawingCache();
+		}
+		v.buildDrawingCache();
+		Bitmap cacheBitmap = v.getDrawingCache();
+		if (cacheBitmap == null) {
+			return null;
+		}
+
+		Bitmap bitmap = Bitmap.createBitmap(cacheBitmap);
+
+		v.destroyDrawingCache();
+		v.setWillNotCacheDrawing(willNotCache);
+		v.setDrawingCacheBackgroundColor(color);
+
+		return bitmap;
+	}
+	
 	public static class ImageSize {
 		public int width;
 		public int height;

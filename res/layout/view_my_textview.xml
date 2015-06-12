@@ -1,0 +1,18 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <com.scut.picturelibrary.views.DoubleClickEditText
+        android:id="@+id/edt_my_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:id="@+id/btn_my_textView_cancel"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_toRightOf="@id/edt_my_textView"
+        android:background="@drawable/ic_delete"
+        android:padding="5dp" />
+
+</RelativeLayout>

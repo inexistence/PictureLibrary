@@ -2,6 +2,7 @@ package com.scut.picturelibrary.activity;
 
 import java.lang.ref.WeakReference;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -13,7 +14,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.Display;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,10 +39,10 @@ import com.scut.picturelibrary.manager.SurfaceViewManager;
  * @author cyc
  * 
  */
+@SuppressLint("ClickableViewAccessibility")
 public class VideoActivity extends Activity implements OnClickListener,
 		OnTouchListener {
 
-	public final static int MEDIA_TYPE_VIDEO = 2;
 	// 视频播放进度条
 	private SeekBar mVideoSeekBar;
 	// 视频播放时间
@@ -57,15 +58,19 @@ public class VideoActivity extends Activity implements OnClickListener,
 
 	private SurfaceViewManager mSurfaceViewManager;
 
-	private Display mDisplay;
+	// private Display mDisplay;
 
 	private MediaPlayer mediaPlayer;
 	// 播放的文件路径
 	private String filePath;
-	// 窗口进入动画
-	private Animation windowInAnimation;
-	// 窗口退出动画
-	private Animation windowOutAnimation;
+	// 底部窗口进入动画
+	private Animation bottomWindowInAnimation;
+	// 底部窗口退出动画
+	private Animation bottomWindowOutAnimation;
+	// 顶部窗口进入动画
+	private Animation topWindowInAnimation;
+	// 顶部窗口退出动画
+	private Animation topWindowOutAnimation;
 	// 视频播放当前时间
 	private int currentTime;
 	// 竖屏缩放布局
@@ -94,14 +99,23 @@ public class VideoActivity extends Activity implements OnClickListener,
 		mVideoPlay = (ImageButton) findViewById(R.id.ibtn_video_play);
 		mVideoPlay.setOnClickListener(this);
 
-		windowInAnimation = AnimationUtils
-				.loadAnimation(this, R.anim.window_in);
-		windowOutAnimation = AnimationUtils.loadAnimation(this,
-				R.anim.window_out);
+		bottomWindowInAnimation = AnimationUtils.loadAnimation(this,
+				R.anim.bottom_window_in);
+		bottomWindowInAnimation.setFillAfter(true);
+		bottomWindowOutAnimation = AnimationUtils.loadAnimation(this,
+				R.anim.bottom_window_out);
+		bottomWindowOutAnimation.setFillAfter(true);
+		
+		topWindowInAnimation = AnimationUtils.loadAnimation(this,
+				R.anim.top_window_in);
+		topWindowInAnimation.setFillAfter(true);
+		topWindowOutAnimation = AnimationUtils.loadAnimation(this,
+				R.anim.top_window_out);
+		topWindowOutAnimation.setFillAfter(true);
 
 		// 传入的第二个参数为媒体类型，第三个参数为文件路径
-		mSurfaceViewManager = new SurfaceViewManager(this, MEDIA_TYPE_VIDEO,
-				filePath);
+		mSurfaceViewManager = new SurfaceViewManager(this,
+				SurfaceViewManager.MEDIA_TYPE_VIDEO, filePath);
 		mediaPlayer = mSurfaceViewManager.getMyMediaPlayer();
 
 		mVideoView = (FrameLayout) findViewById(R.id.fl_vedio_view);
@@ -145,35 +159,9 @@ public class VideoActivity extends Activity implements OnClickListener,
 		});
 	}
 
-	Runnable mUpdateSeeekBarHandler = new Runnable() {
-
-		@Override
-		public void run() {
-
-		}
-	};
-
 	// 更新seekbar和时间
 	private void updateSeekBarThread() {
 		handler.post(null);
-		// new Thread() {
-		//
-		// @Override
-		// public void run() {
-		// while (mediaPlayer != null && mediaPlayer.isPlaying()) {
-		// try {
-		// currentTime = mediaPlayer.getCurrentPosition();
-		// Message msg = new Message();
-		// msg.what = currentTime;
-		// handler.sendMessage(msg);
-		// sleep(1000);
-		// } catch (Exception e) {
-		//
-		// }
-		// }
-		// }
-		//
-		// }.start();
 	}
 
 	private static class MyHandler extends Handler {
@@ -205,7 +193,6 @@ public class VideoActivity extends Activity implements OnClickListener,
 						.ShowTime(curTime));
 				act.handler.postDelayed(null, 1000);
 			}
-
 		}
 	}
 
@@ -215,14 +202,13 @@ public class VideoActivity extends Activity implements OnClickListener,
 			// 获得视频的高度和宽度
 			int mVideoWidth = mp.getVideoWidth();
 			int mVideoHeight = mp.getVideoHeight();
-			mDisplay = getWindowManager().getDefaultDisplay();
+			DisplayMetrics dm = new DisplayMetrics();
+			// mDisplay = getWindowManager().getDefaultDisplay();
+			getWindowManager().getDefaultDisplay().getMetrics(dm);
 			// 如果video的宽或者高超出了当前屏幕的大小，则要进行缩放
-			if (mVideoWidth > mDisplay.getWidth()
-					|| mVideoHeight > mDisplay.getHeight()) {
-				float wRatio = (float) mVideoWidth
-						/ (float) mDisplay.getWidth();
-				float hRatio = (float) mVideoHeight
-						/ (float) mDisplay.getHeight();
+			if (mVideoWidth > dm.widthPixels || mVideoHeight > dm.heightPixels) {
+				float wRatio = (float) mVideoWidth / (float) dm.widthPixels;
+				float hRatio = (float) mVideoHeight / (float) dm.heightPixels;
 				// 选择大的一个进行缩放
 				float ratio = Math.max(wRatio, hRatio);
 				mVideoWidth = (int) Math.ceil((float) mVideoWidth / ratio);
@@ -241,19 +227,18 @@ public class VideoActivity extends Activity implements OnClickListener,
 		if (view.getId() != R.id.seb_video) {
 			if (eventaction == MotionEvent.ACTION_DOWN) {
 				if (llPlayLayout.getVisibility() == View.VISIBLE) {
+					llPlayLayout.startAnimation(bottomWindowOutAnimation);
 					llPlayLayout.setVisibility(View.GONE);
-					llPlayLayout.startAnimation(windowOutAnimation);
 				} else {
+					llPlayLayout.startAnimation(bottomWindowInAnimation);
 					llPlayLayout.setVisibility(View.VISIBLE);
-					llPlayLayout.startAnimation(windowInAnimation);
 				}
 				if (llSeekBarLayout.getVisibility() == View.VISIBLE) {
+					llSeekBarLayout.startAnimation(topWindowOutAnimation);
 					llSeekBarLayout.setVisibility(View.GONE);
-					llSeekBarLayout.startAnimation(windowInAnimation);
 				} else {
+					llSeekBarLayout.startAnimation(topWindowInAnimation);
 					llSeekBarLayout.setVisibility(View.VISIBLE);
-					llSeekBarLayout.startAnimation(windowOutAnimation);
-
 				}
 			}
 		}
@@ -290,12 +275,12 @@ public class VideoActivity extends Activity implements OnClickListener,
 		case R.id.ibtn_video_play:
 
 			// 如果没有正在播放视频，则播放
-			if (!mediaPlayer.isPlaying()) {
+			if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
 				mediaPlayer.start();
 				updateSeekBarThread();
 				mVideoPlay.setImageDrawable(getResources().getDrawable(
 						R.drawable.img_video_play));
-			} else if (mediaPlayer.isPlaying()) { // 如果正在播放视频，则暂停
+			} else if (mediaPlayer != null && mediaPlayer.isPlaying()) { // 如果正在播放视频，则暂停
 				mediaPlayer.pause();
 				mVideoPlay.setImageDrawable(getResources().getDrawable(
 						R.drawable.img_video_pause));

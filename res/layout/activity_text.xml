@@ -1,0 +1,81 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="#4e4e4e" >
+
+        <com.scut.picturelibrary.views.EdtImageViewLayout
+            android:id="@+id/edtimg_text_tartget_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="#ff000000" />
+
+        <RelativeLayout
+            style="@style/FilterOKCancelRelativeLayoutStyle">
+
+            <ImageButton
+                android:id="@+id/btn_text_cancel"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/selector_ic_no" />
+
+            <ImageButton
+                android:id="@+id/btn_text_add"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ic_add_text" />
+
+            <ImageButton
+                android:id="@+id/btn_text_finish"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/selector_ic_ok" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager_text_seeting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/img_text_dot_page1"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/selector_bg_dot" />
+
+            <ImageView
+                android:id="@+id/img_text_dot_page2"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@id/img_text_dot_page1"
+                android:background="@drawable/selector_bg_dot" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

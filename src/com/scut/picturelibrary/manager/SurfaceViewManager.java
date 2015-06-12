@@ -12,11 +12,6 @@ import android.media.MediaRecorder;
 import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
-
-import com.scut.picturelibrary.animation.MyCameraButtonAnimation;
-import com.scut.picturelibrary.animation.MyRecorderButtonAnimation;
 
 /**
  * SurfaceView管理
@@ -26,6 +21,9 @@ import com.scut.picturelibrary.animation.MyRecorderButtonAnimation;
  */
 public class SurfaceViewManager extends SurfaceView implements
 		SurfaceHolder.Callback {
+	public final static int MEDIA_TYPE_CAMERA = 1;
+	public final static int MEDIA_TYPE_VIDEO = 2;
+	public final static int MEDIA_TYPE_RECORDER = 3;
 
 	// 媒体类型，相机或者视频播放器
 	private int mediaType;
@@ -57,53 +55,76 @@ public class SurfaceViewManager extends SurfaceView implements
 
 	private OnCompletionListener mOnCompletionListener;
 
-	// 横竖屏切换时，控件跟着切换的动画
-	private MyCameraButtonAnimation cameraButtonAnimation;
-
-	private MyRecorderButtonAnimation recorderButtonAnimation;
-
 	private MyOrientationEventListener orientationEventListener;
 	// 最终方向
 	private int lastBtOrientation = 0;
 
-	// 相机的构造函数
-	public SurfaceViewManager(Context context, int type,
-			MyCameraButtonAnimation btAnimation) {
+	/**
+	 * 录像机和照相机的构造函数
+	 * 
+	 * @param context
+	 * @param type
+	 */
+	public SurfaceViewManager(Context context, int type) {
 		super(context);
-		this.context = context;
-		this.mediaType = type;
-		this.orientationEventListener = new MyOrientationEventListener(context);
-		this.cameraButtonAnimation = btAnimation;
-		mHolder = getHolder();
-		mHolder.addCallback(this);
-		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		mCameraManager = new CameraManager(context);
+		init(context, type);
+		if (type == MEDIA_TYPE_CAMERA) {// 照相机
+			initCamera();
+			enableOrientationEventListener();
+		} else if (type == MEDIA_TYPE_RECORDER) {// 录像机
+			initRecorder();
+			enableOrientationEventListener();
+		} else if (type == MEDIA_TYPE_VIDEO) {// 播放器
+			initVideoPlayer();
+		}
 	}
 
-	// 录像的构造函数
-	public SurfaceViewManager(Context context, int type,
-			MyRecorderButtonAnimation btAnimation) {
+	/**
+	 * 设置横竖屏幕事件监听
+	 */
+	public void enableOrientationEventListener() {
+		if (orientationEventListener == null) {
+			orientationEventListener = new MyOrientationEventListener(context);
+		}
+		if (orientationEventListener.canDetectOrientation() == true) {
+			orientationEventListener.enable();
+		} else {
+			orientationEventListener.disable();
+		}
+	}
+
+	/**
+	 * 视频播放器的构造函数
+	 * 
+	 * @param context
+	 * @param type
+	 * @param filePath
+	 */
+	public SurfaceViewManager(Context context, int type, String filePath) {
 		super(context);
+		init(context, type);
+		this.strFilePath = filePath;
+		initVideoPlayer();
+	}
+
+	private void init(Context context, int type) {
 		this.context = context;
 		this.mediaType = type;
-		this.orientationEventListener = new MyOrientationEventListener(context);
-		this.recorderButtonAnimation = btAnimation;
 		mHolder = getHolder();
 		mHolder.addCallback(this);
-		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		// mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+	}
+
+	private void initRecorder() {
 		mRecorderManager = new MediaRecorderManager(context);
 		recorder = mRecorderManager.getMyMediaRecorder();
 	}
 
-	// 视频播放器的构造函数
-	public SurfaceViewManager(Context context, int type, String filePath) {
-		super(context);
-		this.context = context;
-		this.mediaType = type;
-		this.strFilePath = filePath;
-		mHolder = getHolder();
-		mHolder.addCallback(this);
-		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+	private void initCamera() {
+		mCameraManager = new CameraManager(context);
+	}
+
+	private void initVideoPlayer() {
 		mVideoManager = new VideoManager(context);
 		mediaPlayer = mVideoManager.getMyMediaPlayer();
 	}
@@ -117,18 +138,18 @@ public class SurfaceViewManager extends SurfaceView implements
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		switch (mediaType) {
-		case 1:
+		case MEDIA_TYPE_CAMERA:
 			openCamera(holder);
-			mCamera.setDisplayOrientation(lastBtOrientation + 90);
-			mCameraManager.setCameraParameters(mCamera);
+			mCamera.setDisplayOrientation(90);
+			mCameraManager.setCameraParameters(mCamera, 0);
 			break;
 
-		case 2:
+		case MEDIA_TYPE_VIDEO:
 			mVideoManager.play(strFilePath, holder, mOnPreparedListener,
 					mOnCompletionListener);
 			break;
 
-		case 3:
+		case MEDIA_TYPE_RECORDER:
 			openCamera(holder);
 			break;
 		}
@@ -137,11 +158,11 @@ public class SurfaceViewManager extends SurfaceView implements
 	private void openCamera(SurfaceHolder holder) {
 		if (mCamera == null) {
 			switch (mediaType) {
-			case 1:
+			case MEDIA_TYPE_CAMERA:
 				mCamera = mCameraManager.getMyCamera(context);
-				mCameraManager.setCameraParameters(mCamera);
+				mCameraManager.setCameraParameters(mCamera, 90);
 				break;
-			case 3:
+			case MEDIA_TYPE_RECORDER:
 				mCamera = mRecorderManager.getMyCamera(context);
 				break;
 			}
@@ -163,14 +184,14 @@ public class SurfaceViewManager extends SurfaceView implements
 	@Override
 	public void surfaceDestroyed(SurfaceHolder arg0) {
 		switch (mediaType) {
-		case 1:
+		case MEDIA_TYPE_CAMERA:
 			releaseCamera();
 			break;
 
-		case 2:
+		case MEDIA_TYPE_VIDEO:
 
 			break;
-		case 3:
+		case MEDIA_TYPE_RECORDER:
 
 			break;
 		}
@@ -187,50 +208,26 @@ public class SurfaceViewManager extends SurfaceView implements
 		public void onOrientationChanged(int orientation) {
 			if (orientation == ORIENTATION_UNKNOWN)
 				return;
-
 			int phoneRotation = 0;
-			if (orientation > 315 && orientation <= 45) {
-				phoneRotation = 0;
-			} else if (orientation > 45 && orientation <= 135) {
+			if (orientation < 10 || orientation > 350) {
+				// 手机上边向上
 				phoneRotation = 90;
-			} else if (orientation > 135 && orientation <= 225) {
+			} else if (orientation < 100 && orientation > 80) {
+				// 手机右边向上
 				phoneRotation = 180;
-			} else if (orientation > 225 && orientation <= 315) {
-				phoneRotation = 270;
+			} else if (orientation < 190 && orientation > 170) {
+				// 手机下边向上
+				phoneRotation = 90;
+			} else if (orientation < 280 && orientation > 260) {
+				// 手机左边向上
+				phoneRotation = 0;
 			}
-
-			if (phoneRotation == 0 && lastBtOrientation == 360) {
-				lastBtOrientation = 0;
-			}
-
-			if ((phoneRotation == 0 || lastBtOrientation == 0)
-					&& (Math.abs(phoneRotation - lastBtOrientation) > 180)) {
-				phoneRotation = phoneRotation == 0 ? 360 : phoneRotation;
-				lastBtOrientation = lastBtOrientation == 0 ? 360
-						: lastBtOrientation;
-			}
-
-			if (phoneRotation != lastBtOrientation) {
-				int fromDegress = 360 - lastBtOrientation;
-				int toDegrees = 360 - phoneRotation;
-
-				RotateAnimation animation = new RotateAnimation(fromDegress,
-						toDegrees, Animation.RELATIVE_TO_SELF, 0.5f,
-						Animation.RELATIVE_TO_SELF, 0.5f);
-				animation.setDuration(1000);
-				animation.setFillAfter(true);
-				switch (mediaType) {
-				case 1:
-					cameraButtonAnimation.executeAnimation(animation);
-					break;
-				case 3:
-					recorderButtonAnimation.executeAnimation(animation);
-					break;
-				}
-				lastBtOrientation = phoneRotation;
-				if (mCamera != null) {
-					// 随着横竖屏切换，设置预览的角度
-					mCamera.setDisplayOrientation(lastBtOrientation + 90);
+			lastBtOrientation = phoneRotation;
+			if (mCamera != null) {
+				// 随着横竖屏切换，设置拍照结果的角度
+				if (mCameraManager != null) {
+					Camera.Parameters parameters = mCamera.getParameters();
+					parameters.setRotation(lastBtOrientation + 90);
 				}
 			}
 		}
@@ -285,8 +282,9 @@ public class SurfaceViewManager extends SurfaceView implements
 	}
 
 	// 开始录像
-	public void startRecord() {
-		mRecorderManager.startRecord(mCamera, mHolder);
+	public String startRecord() {
+		return mRecorderManager
+				.startRecord(mCamera, mHolder, lastBtOrientation);
 	}
 
 	// 释放相机
@@ -299,12 +297,7 @@ public class SurfaceViewManager extends SurfaceView implements
 	}
 
 	// 释放录像机
-	public void releaseMediaRecorder() {
-		mRecorderManager.releaseMediaRecorder(mCamera);
+	public void releaseMediaRecorder(boolean isRecording, boolean useAgain) {
+		mRecorderManager.releaseMediaRecorder(mCamera, isRecording, useAgain);
 	}
-
-	public void scanFile() {
-		mRecorderManager.scanFile();
-	}
-
 }

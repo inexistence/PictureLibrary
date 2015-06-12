@@ -1,0 +1,83 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="#4e4e4e" >
+
+        <com.scut.picturelibrary.views.MoveableImageView
+            android:id="@+id/sqimg_edit_tartget_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="#ffffff" />
+
+        <RelativeLayout
+            style="@style/FilterOKCancelRelativeLayoutStyle" >
+
+            <ImageButton
+                android:id="@+id/btn_edit_cancel"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/selector_ic_no" />
+
+            <ImageButton
+                android:id="@+id/btn_edit_next"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/selector_ic_ok" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#ffffff"
+        android:gravity="center" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btn_edit_choose_in_size"
+                style="@style/FlatButtonStyle"
+                android:text="1:1" />
+
+            <Button
+                android:id="@+id/btn_edit_choose_background"
+                style="@style/FlatButtonStyle"
+                android:text="黑" />
+
+            <Button
+                android:id="@+id/btn_edit_choose_rotation"
+                style="@style/FlatButtonStyle"
+                android:text="旋转90" />
+
+            <Button
+                android:id="@+id/btn_edit_choose_incenter"
+                style="@style/FlatButtonStyle"
+                android:text="中间" />
+
+            <Button
+                android:id="@+id/btn_edit_choose_in_horizontal_center"
+                style="@style/FlatButtonStyle"
+                android:text="水平中间" />
+
+            <Button
+                android:id="@+id/btn_edit_choose_in_vertical_center"
+                style="@style/FlatButtonStyle"
+                android:text="垂直中间" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>

@@ -3,77 +3,77 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/img_filter_review"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:scaleType="centerInside" />
+        android:layout_weight="3"
+        android:background="#4e4e4e" >
 
-    <LinearLayout
-        android:id="@+id/ll_filter_filters"
+        <ImageView
+            android:id="@+id/sqimg_filter_tartget_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="#ff000000" />
+
+        <RelativeLayout
+            style="@style/FilterOKCancelRelativeLayoutStyle">
+
+            <ImageButton
+                android:id="@+id/btn_filter_cancel"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/selector_ic_no" />
+
+            <ImageButton
+                android:id="@+id/btn_filter_next"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/selector_ic_ok" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:background="#ffffff"
+        android:gravity="center" >
 
-        <Button
-            android:id="@+id/btn_filter_origin"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/ll_filter_btns"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="原图" />
+            android:gravity="center"
+            android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/btn_filter_blackWhite"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="黑白" />
+            <Button
+                android:id="@+id/btn_filter_origin"
+                style="@style/FlatButtonStyle"
+                android:text="原图" />
 
-        <Button
-            android:id="@+id/btn_fliter_oldPhoto"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="旧照片" />
+            <Button
+                android:id="@+id/btn_filter_blackWhite"
+                style="@style/FlatButtonStyle"
+                android:text="黑白" />
 
-        <Button
-            android:id="@+id/btn_filter_brightContrast"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="高亮" />
+            <Button
+                android:id="@+id/btn_fliter_oldPhoto"
+                style="@style/FlatButtonStyle"
+                android:text="旧照片" />
 
-        <Button
-            android:id="@+id/btn_filter_feather"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="羽化" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_filter_brightContrast"
+                style="@style/FlatButtonStyle"
+                android:text="高亮" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/btn_filter_cancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="取消" />
-
-        <Button
-            android:id="@+id/btn_filter_save"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="保存" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_filter_feather"
+                style="@style/FlatButtonStyle"
+                android:text="羽化" />
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </LinearLayout>

@@ -5,14 +5,13 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.scut.picturelibrary.R;
-import com.scut.picturelibrary.animation.MyRecorderButtonAnimation;
 import com.scut.picturelibrary.manager.SurfaceViewManager;
+import com.scut.picturelibrary.utils.FileUtil;
 
 /**
  * 录像
@@ -21,8 +20,6 @@ import com.scut.picturelibrary.manager.SurfaceViewManager;
  * 
  */
 public class MediaRecorderActivity extends Activity implements OnClickListener {
-
-	public final static int MEDIA_TYPE_RECORDER = 3;
 
 	private ImageButton mRecorderBack;
 
@@ -35,6 +32,8 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 	private MediaRecorder recorder;
 	// 是否正在录制
 	private boolean isRecording = false;
+	
+	private String filePath;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +45,7 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 		mRecorderRecord = (ImageButton) findViewById(R.id.ibtn_recorder_record);
 		mRecorderRecord.setOnClickListener(this);
 
-		mSurfaceViewManager = new SurfaceViewManager(this, MEDIA_TYPE_RECORDER,
-				btAnimation);
+		mSurfaceViewManager = new SurfaceViewManager(this, SurfaceViewManager.MEDIA_TYPE_RECORDER);
 		recorder = mSurfaceViewManager.getMyMediaRecorder();
 		mRecorderPreview = (FrameLayout) findViewById(R.id.fl_recorder_preview);
 		mRecorderPreview.addView(mSurfaceViewManager);
@@ -61,16 +59,16 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 		case R.id.ibtn_recorder_record:
 
 			if (isRecording && recorder != null) {
-				mSurfaceViewManager.releaseMediaRecorder();
+				mSurfaceViewManager.releaseMediaRecorder(isRecording,true);
 				isRecording = false;
 				Toast.makeText(MediaRecorderActivity.this, "录制完成",
 						Toast.LENGTH_SHORT).show();
 				// 录像完毕后扫描文件
-				mSurfaceViewManager.scanFile();
+				FileUtil.scanFiles(getApplicationContext(), filePath);
 				mRecorderRecord.setImageDrawable(getResources().getDrawable(
 						R.drawable.img_recorder_record));
 			} else {
-				mSurfaceViewManager.startRecord();
+				filePath = mSurfaceViewManager.startRecord();
 				isRecording = true;
 				Toast.makeText(MediaRecorderActivity.this, "视频录制中。。。",
 						Toast.LENGTH_SHORT).show();
@@ -85,19 +83,10 @@ public class MediaRecorderActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	// 传感器方向发生改变时，设置控件旋转动画
-	private MyRecorderButtonAnimation btAnimation = new MyRecorderButtonAnimation() {
-		@Override
-		public void executeAnimation(Animation animation) {
-			mRecorderBack.startAnimation(animation);
-			mRecorderRecord.startAnimation(animation);
-		}
-	};
-
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		mSurfaceViewManager.releaseMediaRecorder();
+		mSurfaceViewManager.releaseMediaRecorder(isRecording,false);
 		mSurfaceViewManager.releaseCamera();
 	}
 

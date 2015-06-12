@@ -1,14 +1,14 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+            backward-compatibility can go here.
         -->
     </style>
 
@@ -16,18 +16,33 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-    
+
     <style name="ImageButtonStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">#00000000</item>
         <item name="android:layout_margin">20dp</item>
     </style>
-    
+
     <style name="anim_linearlayout">
-        <item name="android:windowEnterAnimation">@anim/window_in</item>
-        <item name="android:windowExitAnimation">@anim/window_out</item>
+        <item name="android:windowEnterAnimation">@anim/bottom_window_in</item>
+        <item name="android:windowExitAnimation">@anim/bottom_window_out</item>
     </style>
-    
+
+    <style name="FlatButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_stroke_rec</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <style name="FilterOKCancelRelativeLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:background">#77000000</item>
+    </style>
 
 </resources>

@@ -205,7 +205,13 @@ public class FlowTagsLayout extends AdapterView<Adapter> implements
 					child = mAdapter.getView(i, null, this);// create new view
 					mConvertViewCache.add(child);// save view
 				}
-				addViewInLayout(child, i, child.getLayoutParams());
+				if (child.getLayoutParams() != null
+						&& child.getLayoutParams() instanceof MarginLayoutParams)
+					addViewInLayout(child, i, child.getLayoutParams());
+				else
+					addViewInLayout(child, i, new MarginLayoutParams(
+							MarginLayoutParams.WRAP_CONTENT,
+							MarginLayoutParams.WRAP_CONTENT));
 			}
 		}
 		// Invalidate all views

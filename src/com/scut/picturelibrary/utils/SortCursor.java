@@ -17,6 +17,33 @@ import com.scut.picturelibrary.utils.SortCursor.SortEntry;
  */
 
 public class SortCursor extends CursorWrapper implements Comparator<SortEntry> {
+	public static int DESC = -1;
+	public static int ASC = 1;
+	int mSort = ASC;
+
+	/**
+	 * 
+	 * @param cursor
+	 * @param sort
+	 *            {@link #ASC} or {@link #DESC}
+	 */
+	public SortCursor(Cursor cursor, String columnName, int sort) {
+		super(cursor);
+		mSort = sort;
+		mCursor = cursor;
+		if (mCursor != null && mCursor.getCount() > 0) {
+			int i = 0;
+			int column = cursor.getColumnIndexOrThrow(columnName);
+			for (mCursor.moveToFirst(); !mCursor.isAfterLast(); mCursor
+					.moveToNext(), i++) {
+				SortEntry sortKey = new SortEntry();
+				sortKey.key = cursor.getString(column);
+				sortKey.order = i;
+				sortList.add(sortKey);
+			}
+		}
+		Collections.sort(sortList, this);
+	}
 
 	public SortCursor(Cursor cursor) {
 		super(cursor);
@@ -32,25 +59,14 @@ public class SortCursor extends CursorWrapper implements Comparator<SortEntry> {
 	}
 
 	public int compare(SortEntry entry1, SortEntry entry2) {
-		return entry1.key.compareToIgnoreCase(entry2.key);
+		int resut = entry1.key.compareToIgnoreCase(entry2.key);
+		if (mSort == ASC)
+			return resut;
+		return -resut;
 	}
 
 	public SortCursor(Cursor cursor, String columnName) {
-		super(cursor);
-
-		mCursor = cursor;
-		if (mCursor != null && mCursor.getCount() > 0) {
-			int i = 0;
-			int column = cursor.getColumnIndexOrThrow(columnName);
-			for (mCursor.moveToFirst(); !mCursor.isAfterLast(); mCursor
-					.moveToNext(), i++) {
-				SortEntry sortKey = new SortEntry();
-				sortKey.key = cursor.getString(column);
-				sortKey.order = i;
-				sortList.add(sortKey);
-			}
-		}
-		Collections.sort(sortList, this);
+		this(cursor, columnName, ASC);
 	}
 
 	public boolean moveToPosition(int position) {

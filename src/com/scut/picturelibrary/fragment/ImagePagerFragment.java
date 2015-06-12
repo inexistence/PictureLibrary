@@ -3,12 +3,10 @@ package com.scut.picturelibrary.fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -23,7 +21,6 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import com.scut.picturelibrary.Constants;
 import com.scut.picturelibrary.R;
 import com.scut.picturelibrary.views.MyImageView;
-import com.scut.picturelibrary.views.MyImageView.OnSingleTouchListener;
 
 /**
  * 显示大图用的Fragment
@@ -40,14 +37,14 @@ public class ImagePagerFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		imageUrls = getArguments().getStringArray(Constants.IMAGE_URLS);
 		options = new DisplayImageOptions.Builder()
-				.resetViewBeforeLoading(true).cacheOnDisk(true)
+				.resetViewBeforeLoading(true).cacheOnDisk(false)
 				.imageScaleType(ImageScaleType.EXACTLY)
 				.bitmapConfig(Bitmap.Config.RGB_565).considerExifParams(true)
 				.displayer(new FadeInBitmapDisplayer(300)).build();
 	}
 
 	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -90,17 +87,17 @@ public class ImagePagerFragment extends Fragment {
 			assert imageLayout != null;
 			MyImageView imageView = (MyImageView) imageLayout
 					.findViewById(R.id.image);
-			imageView.setOnSingleTouchListener(new OnSingleTouchListener() {
-
-				@Override
-				public void onSingleTouch(View v, MotionEvent e,
-						boolean singleTap) {
-					if (singleTap)
-						getActivity().getActionBar().hide();
-					else
-						getActivity().getActionBar().show();
-				}
-			});
+//			imageView.setOnSingleTouchListener(new OnSingleTouchListener() {
+//
+//				@Override
+//				public void onSingleTouch(View v, MotionEvent e,
+//						boolean singleTap) {
+//					if (singleTap)
+//						getActivity().getActionBar().hide();
+//					else
+//						getActivity().getActionBar().show();
+//				}
+//			});
 			final ProgressBar spinner = (ProgressBar) imageLayout
 					.findViewById(R.id.loading);
 

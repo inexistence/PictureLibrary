@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="#ffffff" >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -12,7 +13,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="10dp"
-            android:contentDescription="@string/reco_image" />
+            android:contentDescription="@string/reco_image"
+            android:scaleType="centerInside" />
 
         <TextView
             android:id="@+id/txt_recognize_guess"
@@ -29,7 +31,6 @@
             android:id="@+id/ftl_recognize_guess"
             android:layout_width="wrap_content"
             android:layout_height="100dp"
-            android:layout_alignBottom="@id/img_recognize_source"
             android:layout_alignParentRight="true"
             android:layout_below="@id/txt_recognize_guess"
             android:layout_marginTop="10dp"
@@ -50,7 +51,7 @@
                     android:id="@+id/txt_recognize_insame_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#ffffff"
+                    android:background="#00ffffff"
                     android:contentDescription="@string/reco_image"
                     android:padding="10dp"
                     android:text="@string/same_image"

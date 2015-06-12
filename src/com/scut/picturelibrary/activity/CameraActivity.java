@@ -10,7 +10,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.scut.picturelibrary.R;
-import com.scut.picturelibrary.animation.MyCameraButtonAnimation;
 import com.scut.picturelibrary.manager.SurfaceViewManager;
 
 /**
@@ -20,8 +19,6 @@ import com.scut.picturelibrary.manager.SurfaceViewManager;
  * 
  */
 public class CameraActivity extends Activity implements OnClickListener {
-
-	public final static int MEDIA_TYPE_CAMERA = 1;
 
 	// 返回
 	private ImageButton mCameraBack;
@@ -44,12 +41,11 @@ public class CameraActivity extends Activity implements OnClickListener {
 		mCameraBack.setOnClickListener(this);
 		mCameraTake = (ImageButton) findViewById(R.id.ibtn_camera_take);
 		mCameraTake.setOnClickListener(this);
-		
 
 		takePhotoAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 		// 传入第第二个参数为媒体类型，第三个参数为控件动画
-		mSurfaceViewManager = new SurfaceViewManager(this, MEDIA_TYPE_CAMERA,
-				btAnimation);
+		mSurfaceViewManager = new SurfaceViewManager(this,
+				SurfaceViewManager.MEDIA_TYPE_CAMERA);
 		mCameraPreview = (FrameLayout) findViewById(R.id.fl_camera_preview);
 		mCameraPreview.addView(mSurfaceViewManager);
 
@@ -64,18 +60,8 @@ public class CameraActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.ibtn_camera_take:
 			mSurfaceViewManager.takePhoto();
-            mCameraTake.startAnimation(takePhotoAnimation);
+			mCameraTake.startAnimation(takePhotoAnimation);
 			break;
 		}
 	}
-
-	// 传感器方向发生改变时，设置控件旋转动画
-	private MyCameraButtonAnimation btAnimation = new MyCameraButtonAnimation() {
-		@Override
-		public void executeAnimation(Animation animation) {
-			mCameraBack.startAnimation(animation);
-			mCameraTake.startAnimation(animation);
-		}
-	};
-
 }

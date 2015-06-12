@@ -19,5 +19,13 @@ public class Constants {
 
 	public static String IMAGE_URLS = "com.scut.picturelibrary.IMAGE_URLS";
 	public static String IMAGE_POSITION = "com.scut.picturelibrary.IMAGE_POSITION";
-	
+
+	public static float[] EDIT_IMAGE_SCALES = { 1.0f, 4.0f / 3.0f, 3.0f / 4.0f };
+	public static String[] FONTS = { "fonts/fzfys.TTF", "fonts/fzjh.otf",
+			"fonts/fzltxh.TTF", "fonts/fzqkbys.TTF", "fonts/fzygytk.ttf",
+			"fonts/fzzdh.ttf", "fonts/txjzh.ttf", "fonts/xdhbbdz.ttf" };
+	public static int[] FONTS_DRAWABLE_ID = { R.drawable.bg_font1,
+			R.drawable.bg_font2, R.drawable.bg_font3, R.drawable.bg_font4,
+			R.drawable.bg_font5, R.drawable.bg_font6, R.drawable.bg_font7,
+			R.drawable.bg_font8 };
 }

@@ -1,104 +1,87 @@
 package com.scut.picturelibrary.activity;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.scut.picturelibrary.R;
-import com.scut.picturelibrary.manager.CameraManager;
-import com.scut.picturelibrary.utils.FileUtil;
+import com.scut.picturelibrary.utils.FormatTools;
 import com.scut.picturelibrary.utils.ImageData;
 import com.scut.picturelibrary.utils.ImageFilter;
 import com.scut.picturelibrary.views.DialogManager;
 
+/**
+ * 滤镜Activity
+ * 
+ * @author 黄建斌
+ * 
+ */
 public class FilterActivity extends Activity {
-	ImageView mReviewImageView;
+	ImageView mSquareImageView;
 	Bitmap mLoadedBitmap;
+	ImageButton mNextButton;
 	ImageData originData;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_filter);
-		String uri = getIntent().getStringExtra("uri");
 
-		mReviewImageView = (ImageView) findViewById(R.id.img_filter_review);
+		Intent intent = getIntent();
+		byte[] bitmapBytes = intent.getByteArrayExtra("bitmapBytes");
 
-		findViewById(R.id.btn_filter_cancel).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						finish();
-					}
-				});
+		mSquareImageView = (ImageView) findViewById(R.id.sqimg_filter_tartget_image);
 
-		ImageLoader.getInstance().displayImage(uri, mReviewImageView, null,
-				new ImageLoadingListener() {
+		new DecodeTask(bitmapBytes).execute();
 
-					@Override
-					public void onLoadingStarted(String imageUri, View view) {
-					}
+		Toast.makeText(this, "TIP:为图片添加滤镜", Toast.LENGTH_LONG).show();
 
-					@Override
-					public void onLoadingFailed(String imageUri, View view,
-							FailReason failReason) {
-					}
-
-					@Override
-					public void onLoadingComplete(String imageUri, View view,
-							Bitmap loadedImage) {
-						mLoadedBitmap = loadedImage;
-						originData = new ImageData(loadedImage);
-					}
-
-					@Override
-					public void onLoadingCancelled(String imageUri, View view) {
-
-					}
-				});
-
-		ViewGroup vp = (ViewGroup) findViewById(R.id.ll_filter_filters);
-		for (int i = 0; i < vp.getChildCount(); i++) {
-			vp.getChildAt(i).setOnClickListener(mOnClickListener);
-		}
-
-		Button saveBtn = (Button) findViewById(R.id.btn_filter_save);
-		saveBtn.setOnClickListener(new OnClickListener() {
+		mNextButton = (ImageButton) findViewById(R.id.btn_filter_next);
+		mNextButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				DialogManager.dismissDialog();
-				DialogManager.showSimpleDialog(FilterActivity.this, "保存中",
-						"正在保存，请稍候...", null);
-				savePictureTask task = new savePictureTask();
-				task.execute(mLoadedBitmap);
+				if (mLoadedBitmap != null)
+					new ChangePictureTask().execute(mLoadedBitmap);
 			}
 		});
+
+		findViewById(R.id.btn_filter_cancel).setOnClickListener(
+				new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						FilterActivity.this.finish();
+					}
+				});
+
+		ViewGroup vp = (ViewGroup) findViewById(R.id.ll_filter_btns);
+		for (int i = 0; i < vp.getChildCount(); i++) {
+			vp.getChildAt(i).setOnClickListener(mFilterOnClickListener);
+		}
 	}
 
-	OnClickListener mOnClickListener = new OnClickListener() {
+	OnClickListener mFilterOnClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
+			new FilterPictureTask().execute(v.getId());
+		}
+	};
+
+	private class FilterPictureTask extends
+			AsyncTask<Integer, ImageData, ImageData> {
+		@Override
+		protected void onPreExecute() {
 			if (mLoadedBitmap == null || originData == null) {
 				Toast.makeText(FilterActivity.this, "图片正在载入中",
 						Toast.LENGTH_SHORT).show();
@@ -107,14 +90,12 @@ public class FilterActivity extends Activity {
 			DialogManager.dismissDialog();
 			DialogManager.showSimpleDialog(FilterActivity.this, "编辑中",
 					"正在编辑，请稍候...", null);
-			new editPictureTask().execute(v.getId());
 		}
-	};
 
-	private class editPictureTask extends
-			AsyncTask<Integer, ImageData, ImageData> {
 		@Override
 		protected ImageData doInBackground(Integer... ids) {
+			if (originData == null)
+				return null;
 			ImageData imageData = originData.clone();
 			switch (ids[0]) {
 			case R.id.btn_filter_origin:// 原图
@@ -140,70 +121,67 @@ public class FilterActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(ImageData imageData) {
-			super.onPostExecute(imageData);
-			mLoadedBitmap.recycle();
+			DialogManager.dismissDialog();
+			if (imageData == null)
+				return;
+			if (mLoadedBitmap != null)
+				mLoadedBitmap.recycle();
 			mLoadedBitmap = Bitmap.createBitmap(imageData.getPts(), 0,
 					imageData.getWidth(), imageData.getWidth(),
 					imageData.getHeight(), Config.RGB_565);
-			mReviewImageView.setImageBitmap(mLoadedBitmap);
-			DialogManager.dismissDialog();
+			mSquareImageView.setImageBitmap(mLoadedBitmap);
 		}
 	}
 
-	// 异步保存照片文件
-	private class savePictureTask extends AsyncTask<Bitmap, String, String> {
+	/**
+	 * 异步压缩图片
+	 */
+	private class DecodeTask extends AsyncTask<Void, Void, Bitmap> {
+		private byte[] bitmapBytes;
+
+		// ImageSize mSize;
+
+		public DecodeTask(byte[] bitmapBytes) {
+			this.bitmapBytes = bitmapBytes;
+		}
 
 		@Override
-		protected String doInBackground(Bitmap... params) {
+		protected Bitmap doInBackground(Void... params) {
+			Bitmap bmp = FormatTools.getInstance().bytes2Bitmap(
+					this.bitmapBytes);
+			// mSize = ImageUtil.getImageViewSize(mSquareImageView);
+			return bmp;
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap result) {
+			mLoadedBitmap = result;
+			originData = new ImageData(result);
+			mSquareImageView.setImageBitmap(result);
+		}
+	}
+
+	private class ChangePictureTask extends AsyncTask<Bitmap, String, byte[]> {
+		@Override
+		protected void onPreExecute() {
+			mNextButton.setClickable(false);
+		}
+
+		@Override
+		protected byte[] doInBackground(Bitmap... params) {
 			Bitmap bmp = params[0];
-			String filePath = null;
-			if (Environment.getExternalStorageState().equals(
-					Environment.MEDIA_MOUNTED)) {
-				File pictureFile = FileUtil
-						.getOutPutMediaFile(CameraManager.MEDIA_TYPE_IMAGE);
-				if (pictureFile == null) {
-					return null;
-				}
-				try {
-					FileOutputStream fos = new FileOutputStream(pictureFile);
-					bmp.compress(Bitmap.CompressFormat.JPEG, 80, fos);
-					fos.flush();
-					fos.close();
-				} catch (FileNotFoundException e) {
-					Toast.makeText(FilterActivity.this,
-							"FileNotFoundException " + e.getMessage(),
-							Toast.LENGTH_SHORT).show();
-				} catch (IOException e) {
-
-				}
-				filePath = pictureFile.getAbsolutePath();
-			} else {
-				Toast.makeText(FilterActivity.this, "SD卡不存在",
-						Toast.LENGTH_SHORT).show();
-			}
-			return filePath;
+			return FormatTools.getInstance().bitmap2Bytes(bmp);
 		}
 
-		// doInBackground执行完后调用，filePath是上面执行完后的返回值
 		@Override
-		protected void onPostExecute(final String filePath) {
-			super.onPostExecute(filePath);
-			scanFile(filePath);
-			DialogManager.dismissDialog();
-			Toast.makeText(FilterActivity.this, "保存完毕,保存在Pictures文件夹下",
-					Toast.LENGTH_SHORT).show();
+		protected void onPostExecute(byte[] bitmapBytes) {
+			mNextButton.setClickable(true);
+			Intent intent = new Intent();
+			intent.setClass(FilterActivity.this, TextActivity.class);
+			intent.putExtra("bitmapBytes", bitmapBytes);
+			FilterActivity.this.startActivity(intent);
+			FilterActivity.this.finish();
 		}
 	}
 
-	// 根据文件路径扫描照片文件
-	private void scanFile(String path) {
-		if (path == null)
-			return;
-		MediaScannerConnection.scanFile(FilterActivity.this,
-				new String[] { path }, null,
-				new MediaScannerConnection.OnScanCompletedListener() {
-					public void onScanCompleted(String path, Uri uri) {
-					}
-				});
-	}
 }
